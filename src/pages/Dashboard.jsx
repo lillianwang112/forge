@@ -4,34 +4,36 @@ import SplitPane from '../components/editor/SplitPane';
 import CodeEditor from '../components/editor/CodeEditor';
 import EditorToolbar from '../components/editor/EditorToolbar';
 import OutputPanel from '../components/editor/OutputPanel';
+import { useCodeExecution } from '../hooks/useCodeExecution';
+
+// ---------------------------------------------------------------------------
+// Starter code per language
+// ---------------------------------------------------------------------------
 
 const STARTERS = {
-  python: `# Welcome to Forge 🔨
-# Python sandbox — write anything!
+  python: `import numpy as np
 
-def hello(name: str) -> str:
-    return f"Hello, {name}!"
+# Welcome to Forge! 🔨
+# Try running some Python code.
 
-print(hello("Forge"))
-
-# Try numpy-style list comprehension
-squares = [x**2 for x in range(10)]
-print(squares)
+x = np.linspace(0, 2 * np.pi, 100)
+print(f"Generated {len(x)} points from 0 to 2π")
+print(f"Mean: {np.mean(np.sin(x)):.6f}")
+print(f"Max sin(x): {np.max(np.sin(x)):.6f}")
 `,
-  julia: `# Welcome to Forge 🔨
-# Julia sandbox — write anything!
+  julia: `# Welcome to Forge! 🔨
+# Julia execution uses Judge0 (coming in Phase 3)
 
-function hello(name::String)
-    return "Hello, $name!"
-end
-
-println(hello("Forge"))
-
-# Try Julia's array comprehension
-squares = [x^2 for x in 1:10]
-println(squares)
+println("Hello from Julia!")
+x = range(0, 2π, length=100)
+println("Generated $(length(x)) points from 0 to 2π")
+println("Max sin(x): $(maximum(sin.(x)))")
 `,
 };
+
+// ---------------------------------------------------------------------------
+// Track cards data
+// ---------------------------------------------------------------------------
 
 const TRACKS = [
   {
@@ -69,42 +71,35 @@ const TRACKS = [
   },
 ];
 
+// ---------------------------------------------------------------------------
+// Component
+// ---------------------------------------------------------------------------
+
 export default function Dashboard() {
   const [language, setLanguage] = useState('python');
   const [code, setCode] = useState(STARTERS.python);
-  const [output, setOutput] = useState([]);
-  const [isRunning, setIsRunning] = useState(false);
-  const [execTime, setExecTime] = useState(null);
+
+  const { execute, output, isRunning, engineStatus, loadingMessage, clearOutput } =
+    useCodeExecution();
 
   const handleLanguageChange = (lang) => {
     setLanguage(lang);
     setCode(STARTERS[lang]);
-    setOutput([]);
-    setExecTime(null);
+    clearOutput();
   };
 
   const handleRun = () => {
-    setIsRunning(true);
-    setOutput([{ type: 'system', text: '⏳ Execution engine loading in Phase 2…' }]);
-    setExecTime(null);
-    // Simulate brief delay
-    setTimeout(() => {
-      setIsRunning(false);
-      setExecTime(42);
-    }, 800);
+    execute(code, language);
   };
 
   const handleReset = () => {
     setCode(STARTERS[language]);
-    setOutput([]);
-    setExecTime(null);
+    clearOutput();
   };
 
   const handleAIFeedback = () => {
-    setOutput((prev) => [
-      ...prev,
-      { type: 'system', text: '✦ AI Feedback will be available in Phase 4…' },
-    ]);
+    // Phase 4
+    console.info('[Forge] AI Feedback coming in Phase 4');
   };
 
   return (
@@ -116,7 +111,7 @@ export default function Dashboard() {
         overflow: 'hidden',
       }}
     >
-      {/* Forge sandbox heading */}
+      {/* ── Heading ──────────────────────────────────────────────────── */}
       <div
         style={{
           padding: '14px 20px 10px',
@@ -148,7 +143,7 @@ export default function Dashboard() {
         </p>
       </div>
 
-      {/* Toolbar */}
+      {/* ── Toolbar ──────────────────────────────────────────────────── */}
       <EditorToolbar
         language={language}
         onLanguageChange={handleLanguageChange}
@@ -156,9 +151,10 @@ export default function Dashboard() {
         onReset={handleReset}
         onAIFeedback={handleAIFeedback}
         isRunning={isRunning}
+        engineStatus={engineStatus}
       />
 
-      {/* Split pane: editor + output */}
+      {/* ── Split pane ────────────────────────────────────────────────── */}
       <div style={{ flex: 1, overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
         <SplitPane
           left={
@@ -171,15 +167,17 @@ export default function Dashboard() {
           }
           right={
             <OutputPanel
-              entries={output}
-              onClear={() => { setOutput([]); setExecTime(null); }}
-              execTime={execTime}
+              output={output}
+              isRunning={isRunning}
+              engineStatus={engineStatus}
+              loadingMessage={loadingMessage}
+              onClear={clearOutput}
             />
           }
         />
       </div>
 
-      {/* Track cards */}
+      {/* ── Track cards ──────────────────────────────────────────────── */}
       <div
         style={{
           padding: '16px 20px',
@@ -250,7 +248,6 @@ export default function Dashboard() {
               >
                 {track.description}
               </p>
-              {/* Progress bar */}
               <div style={{ marginTop: 8 }}>
                 <div
                   style={{
@@ -262,7 +259,9 @@ export default function Dashboard() {
                     marginBottom: 4,
                   }}
                 >
-                  <span>{track.completed} / {track.lessons} lessons</span>
+                  <span>
+                    {track.completed} / {track.lessons} lessons
+                  </span>
                 </div>
                 <div
                   style={{

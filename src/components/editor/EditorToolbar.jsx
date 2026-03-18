@@ -1,3 +1,20 @@
+/** @param {{ color: string, pulse?: boolean }} props */
+function StatusDot({ color, pulse = false }) {
+  return (
+    <span
+      style={{
+        display: 'inline-block',
+        width: 7,
+        height: 7,
+        borderRadius: '50%',
+        backgroundColor: color,
+        flexShrink: 0,
+        animation: pulse ? 'toolbar-pulse 1.1s ease-in-out infinite' : 'none',
+      }}
+    />
+  );
+}
+
 export default function EditorToolbar({
   language,
   onLanguageChange,
@@ -5,7 +22,17 @@ export default function EditorToolbar({
   onReset,
   onAIFeedback,
   isRunning = false,
+  engineStatus = 'loading', // 'loading' | 'ready' | 'executing' | 'error'
 }) {
+  const canRun = !isRunning && engineStatus === 'ready';
+
+  const engineDot = (() => {
+    if (engineStatus === 'ready') return { color: 'var(--accent-green)', pulse: false, title: 'Engine ready' };
+    if (engineStatus === 'executing') return { color: 'var(--accent-orange)', pulse: true, title: 'Executing…' };
+    if (engineStatus === 'error') return { color: 'var(--accent-red)', pulse: false, title: 'Engine error' };
+    return { color: 'var(--accent-blue)', pulse: true, title: 'Loading engine…' };
+  })();
+
   const btnBase = {
     display: 'inline-flex',
     alignItems: 'center',
@@ -71,6 +98,27 @@ export default function EditorToolbar({
         </button>
       </div>
 
+      {/* Engine status indicator */}
+      <span
+        style={{
+          display: 'inline-flex',
+          alignItems: 'center',
+          gap: 5,
+          fontSize: '0.68rem',
+          color: 'var(--text-muted)',
+          fontFamily: 'var(--font-mono)',
+          padding: '3px 8px',
+          borderRadius: 10,
+          backgroundColor: 'var(--bg-elevated)',
+          border: '1px solid var(--border)',
+          userSelect: 'none',
+        }}
+        title={engineDot.title}
+      >
+        <StatusDot color={engineDot.color} pulse={engineDot.pulse} />
+        {engineDot.title}
+      </span>
+
       <div style={{ flex: 1 }} />
 
       {/* Reset button */}
@@ -108,16 +156,21 @@ export default function EditorToolbar({
 
       {/* Run button */}
       <button
-        onClick={onRun}
-        disabled={isRunning}
+        onClick={canRun ? onRun : undefined}
+        disabled={!canRun}
+        title={!canRun && engineStatus === 'loading' ? 'Waiting for engine to load…' : undefined}
         style={{
           ...btnBase,
-          backgroundColor: isRunning ? 'rgba(63,185,80,0.5)' : 'var(--accent-green)',
-          color: '#000',
+          backgroundColor: canRun
+            ? 'var(--accent-green)'
+            : isRunning
+            ? 'rgba(63,185,80,0.4)'
+            : 'rgba(63,185,80,0.2)',
+          color: canRun ? '#000' : 'rgba(0,0,0,0.5)',
           fontWeight: 600,
-          opacity: isRunning ? 0.7 : 1,
-          cursor: isRunning ? 'not-allowed' : 'pointer',
+          cursor: canRun ? 'pointer' : 'not-allowed',
           paddingRight: 14,
+          opacity: canRun ? 1 : 0.75,
         }}
       >
         {isRunning ? (
@@ -125,12 +178,12 @@ export default function EditorToolbar({
             <span
               style={{
                 display: 'inline-block',
-                width: 12,
-                height: 12,
-                border: '2px solid rgba(0,0,0,0.3)',
-                borderTopColor: '#000',
+                width: 11,
+                height: 11,
+                border: '2px solid rgba(0,0,0,0.25)',
+                borderTopColor: 'rgba(0,0,0,0.7)',
                 borderRadius: '50%',
-                animation: 'spin 0.7s linear infinite',
+                animation: 'spin 0.65s linear infinite',
               }}
             />
             Running…
@@ -142,7 +195,7 @@ export default function EditorToolbar({
               style={{
                 fontFamily: 'var(--font-mono)',
                 fontSize: '0.65rem',
-                color: 'rgba(0,0,0,0.55)',
+                color: canRun ? 'rgba(0,0,0,0.5)' : 'rgba(0,0,0,0.3)',
                 marginLeft: 2,
               }}
             >
@@ -154,6 +207,10 @@ export default function EditorToolbar({
 
       <style>{`
         @keyframes spin { to { transform: rotate(360deg); } }
+        @keyframes toolbar-pulse {
+          0%, 100% { opacity: 1; }
+          50% { opacity: 0.3; }
+        }
       `}</style>
     </div>
   );
