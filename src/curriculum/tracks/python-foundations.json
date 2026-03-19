@@ -293,6 +293,426 @@
           ]
         }
       ]
+    },
+    {
+      "id": "py-6",
+      "title": "Pandas DataFrames",
+      "order": 6,
+      "starterCode": "import pandas as pd\n\n# Create a DataFrame from a dict\ndata = {\n    'name':  ['Alice', 'Bob', 'Carol', 'Dave'],\n    'score': [88, 72, 95, 61],\n    'grade': ['B', 'C', 'A', 'D']\n}\ndf = pd.DataFrame(data)\n\nprint(df.head())        # first 5 rows\nprint(df.dtypes)        # column types\nprint(df.describe())    # summary statistics\n\n# .loc — label-based selection\nprint(df.loc[0, 'name'])        # 'Alice'\n\n# Boolean filtering\nhigh = df[df['score'] >= 80]\nprint(high)\n",
+      "content": "## Pandas DataFrames\n\nPandas is the go-to library for tabular data in Python. A **DataFrame** is a 2-D labeled table — like a spreadsheet or SQL table — where each column can have a different type.\n\n### Series vs DataFrame\n\n- **Series** — a 1-D labeled array (one column)\n- **DataFrame** — a 2-D labeled table (many columns)\n\n```python\nimport pandas as pd\n\ns = pd.Series([10, 20, 30], index=['a', 'b', 'c'])\ndf = pd.DataFrame({'x': [1, 2, 3], 'y': [4, 5, 6]})\n```\n\n### Creating from dict or list\n\n```python\n# From dict (keys = column names)\ndf = pd.DataFrame({'name': ['Alice', 'Bob'], 'score': [90, 80]})\n\n# From list of dicts\nrows = [{'name': 'Alice', 'score': 90}, {'name': 'Bob', 'score': 80}]\ndf = pd.DataFrame(rows)\n```\n\n### Selecting data\n\n```python\ndf['score']           # column as Series\ndf[['name', 'score']] # multiple columns as DataFrame\n\ndf.loc[0]             # row by label\ndf.iloc[0]            # row by position\ndf.loc[0, 'score']    # single cell\n```\n\n### Boolean filtering\n\n```python\nhigh = df[df['score'] >= 80]          # rows where score >= 80\npassing = df[(df['score'] > 60) & (df['grade'] != 'F')]\n```\n\n### Method chaining\n\n```python\nresult = (\n    df\n    .query('score >= 70')\n    .sort_values('score', ascending=False)\n    .reset_index(drop=True)\n)\n```\n\n### Summary statistics\n\n```python\ndf['score'].mean()    # mean\ndf['score'].max()     # max\ndf.describe()         # count/mean/std/min/quartiles/max\n```\n",
+      "challenges": [
+        {
+          "id": "py-6-c1",
+          "title": "Highest Score",
+          "description": "Implement `highest_score(df)` that returns the maximum value from the `'score'` column of the given DataFrame.",
+          "starterCode": "import pandas as pd\n\ndef highest_score(df):\n    # Your code here\n    pass\n",
+          "testCases": [
+            {
+              "id": "py-6-c1-t1",
+              "description": "Returns max of score column",
+              "appendCode": "df = pd.DataFrame({'score': [88, 72, 95, 61]})\nprint(highest_score(df))",
+              "expectedOutput": "95",
+              "isHidden": false
+            }
+          ]
+        },
+        {
+          "id": "py-6-c2",
+          "title": "Filter Passing",
+          "description": "Implement `filter_passing(df, threshold)` that returns a DataFrame containing only the rows where the `'score'` column is greater than or equal to `threshold`.",
+          "starterCode": "import pandas as pd\n\ndef filter_passing(df, threshold):\n    # Your code here\n    pass\n",
+          "testCases": [
+            {
+              "id": "py-6-c2-t1",
+              "description": "Two rows pass threshold of 60",
+              "appendCode": "df = pd.DataFrame({'name': ['A', 'B', 'C'], 'score': [90, 55, 70]})\nprint(len(filter_passing(df, 60)))",
+              "expectedOutput": "2",
+              "isHidden": false
+            }
+          ]
+        },
+        {
+          "id": "py-6-c3",
+          "title": "Score Summary",
+          "description": "Implement `score_summary(df)` that returns a dict with keys `'mean'`, `'max'`, and `'min'` as floats computed from the `'score'` column.",
+          "starterCode": "import pandas as pd\n\ndef score_summary(df):\n    # Your code here\n    pass\n",
+          "testCases": [
+            {
+              "id": "py-6-c3-t1",
+              "description": "Correct mean, min, max",
+              "appendCode": "df = pd.DataFrame({'score': [80.0, 60.0, 100.0]})\ns = score_summary(df)\nprint(s['mean'], s['min'], s['max'])",
+              "expectedOutput": "80.0 60.0 100.0",
+              "isHidden": false
+            },
+            {
+              "id": "py-6-c3-t2",
+              "description": "Mean of two values",
+              "appendCode": "df = pd.DataFrame({'score': [50.0, 100.0]})\ns = score_summary(df)\nprint(s['mean'])",
+              "expectedOutput": "75.0",
+              "isHidden": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "py-7",
+      "title": "Pandas groupby & Merge",
+      "order": 7,
+      "starterCode": "import pandas as pd\n\n# groupby + agg\ndf = pd.DataFrame({\n    'dept':   ['eng', 'eng', 'sci', 'sci', 'hr'],\n    'salary': [90.0, 80.0, 70.0, 60.0, 50.0]\n})\nprint(df.groupby('dept')['salary'].mean())\n\n# merge two DataFrames (inner join)\nemployees = pd.DataFrame({'id': [1, 2, 3], 'name': ['Alice', 'Bob', 'Carol']})\nscores    = pd.DataFrame({'id': [1, 2, 4], 'rating': [5, 4, 3]})\nmerged = pd.merge(employees, scores, on='id', how='inner')\nprint(merged)\n",
+      "content": "## Pandas groupby & Merge\n\nTwo of the most powerful operations in Pandas: **groupby** (split-apply-combine) and **merge** (relational join between tables).\n\n### groupby / agg\n\n```python\n# Mean salary per department\ndf.groupby('dept')['salary'].mean()\n\n# Multiple aggregations\ndf.groupby('dept').agg({'salary': ['mean', 'max', 'count']})\n\n# Custom agg\ndf.groupby('dept')['salary'].agg(lambda s: s.max() - s.min())\n```\n\n### Merge (join)\n\n```python\n# Inner join — keep only matching rows\npd.merge(left, right, on='id', how='inner')\n\n# Left join — keep all left rows\npd.merge(left, right, on='id', how='left')\n\n# Outer join — keep all rows from both\npd.merge(left, right, on='id', how='outer')\n\n# Join on different column names\npd.merge(left, right, left_on='emp_id', right_on='id')\n```\n\n### pivot_table\n\n```python\npivot = df.pivot_table(\n    values='salary',\n    index='dept',\n    aggfunc='mean'\n)\n```\n\n### Method chaining with groupby\n\n```python\nresult = (\n    df\n    .groupby('dept')['salary']\n    .mean()\n    .reset_index()\n    .rename(columns={'salary': 'avg_salary'})\n    .sort_values('avg_salary', ascending=False)\n)\n```\n",
+      "challenges": [
+        {
+          "id": "py-7-c1",
+          "title": "Department Means",
+          "description": "Implement `dept_means(df)` that groups by `'dept'` and returns a dict mapping each department name to its mean `'salary'`.",
+          "starterCode": "import pandas as pd\n\ndef dept_means(df):\n    # Your code here\n    pass\n",
+          "testCases": [
+            {
+              "id": "py-7-c1-t1",
+              "description": "Correct mean per department",
+              "appendCode": "df = pd.DataFrame({'dept': ['eng', 'eng', 'sci', 'sci'], 'salary': [90.0, 80.0, 70.0, 60.0]})\nr = dept_means(df)\nprint(r['eng'], r['sci'])",
+              "expectedOutput": "85.0 65.0",
+              "isHidden": false
+            }
+          ]
+        },
+        {
+          "id": "py-7-c2",
+          "title": "Inner Join",
+          "description": "Implement `join_scores(students, scores)` that performs an inner join on `'id'`, returning the merged DataFrame.",
+          "starterCode": "import pandas as pd\n\ndef join_scores(students, scores):\n    # Your code here\n    pass\n",
+          "testCases": [
+            {
+              "id": "py-7-c2-t1",
+              "description": "Inner join keeps only matching ids",
+              "appendCode": "students = pd.DataFrame({'id': [1, 2, 3], 'name': ['Alice', 'Bob', 'Carol']})\nscores = pd.DataFrame({'id': [1, 2, 4], 'grade': [90, 80, 70]})\nresult = join_scores(students, scores)\nprint(len(result), sorted(result['name'].tolist()))",
+              "expectedOutput": "2 ['Alice', 'Bob']",
+              "isHidden": false
+            }
+          ]
+        },
+        {
+          "id": "py-7-c3",
+          "title": "Top Department",
+          "description": "Implement `top_dept(df)` that returns the name of the department with the highest total `'salary'`.",
+          "starterCode": "import pandas as pd\n\ndef top_dept(df):\n    # Your code here\n    pass\n",
+          "testCases": [
+            {
+              "id": "py-7-c3-t1",
+              "description": "Department with highest total salary",
+              "appendCode": "df = pd.DataFrame({'dept': ['eng', 'eng', 'sci', 'sci', 'sci'], 'salary': [100, 90, 50, 60, 70]})\nprint(top_dept(df))",
+              "expectedOutput": "eng",
+              "isHidden": false
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "py-8",
+      "title": "SciPy Spatial & Distances",
+      "order": 8,
+      "starterCode": "import numpy as np\nfrom scipy.spatial.distance import cdist\nfrom scipy.spatial import KDTree\n\n# Pairwise euclidean distances\nX = np.array([[0.0, 0.0], [3.0, 4.0], [0.0, 4.0]])\nD = cdist(X, X, metric='euclidean')\nprint(\"Distance matrix:\")\nprint(np.round(D, 4))\n\n# KDTree nearest-neighbor\ntree = KDTree(X)\ndist, idx = tree.query([[1.0, 0.5]])\nprint(f\"Nearest to [1, 0.5]: index {idx[0]}, dist {dist[0]:.4f}\")\n",
+      "content": "## SciPy Spatial & Distances\n\n`scipy.spatial` provides efficient spatial data structures and distance computations — essential for robotics (nearest-obstacle queries), machine learning (k-NN), and simulation (collision detection).\n\n### Distance metrics\n\n```python\nfrom scipy.spatial.distance import cdist\nimport numpy as np\n\nX = np.array([[0,0],[3,4],[6,8]])\n\n# Pairwise euclidean\nD = cdist(X, X, metric='euclidean')\n\n# Cosine distance  (1 - cosine similarity)\nD_cos = cdist(X, X, metric='cosine')\n\n# Manhattan (L1)\nD_man = cdist(X, X, metric='cityblock')\n```\n\n### KDTree — fast nearest-neighbor search\n\n```python\nfrom scipy.spatial import KDTree\n\ntree = KDTree(X)              # build once, query many times\ndist, idx = tree.query([1, 1])  # nearest point to [1,1]\n\n# k nearest neighbors\ndists, idxs = tree.query([1, 1], k=3)\n```\n\nKDTree query is O(log n) vs O(n) brute-force — critical for large point clouds.\n\n### Applications\n\n- **Robotics**: nearest obstacle in occupancy grid\n- **Clustering**: assign points to centroids (k-means step)\n- **Vision**: feature matching by descriptor distance\n- **Simulation**: collision detection between meshes\n\n### Cosine distance from scratch\n\n```python\ndef cosine_dist(u, v):\n    cos_sim = np.dot(u, v) / (np.linalg.norm(u) * np.linalg.norm(v))\n    return 1 - cos_sim\n```\n\nCosine distance measures angle between vectors — useful for text/embedding similarity where magnitude doesn't matter.\n",
+      "challenges": [
+        {
+          "id": "py-8-c1",
+          "title": "Pairwise Distance",
+          "description": "Implement `pairwise_dist(X)` that returns the pairwise Euclidean distance matrix of an (n, d) array `X` using `scipy.spatial.distance.cdist`.",
+          "starterCode": "import numpy as np\nfrom scipy.spatial.distance import cdist\n\ndef pairwise_dist(X):\n    # Your code here\n    pass\n",
+          "testCases": [
+            {
+              "id": "py-8-c1-t1",
+              "description": "Distance between [0,0] and [3,4] is 5",
+              "appendCode": "import numpy as np\nX = np.array([[0.0, 0.0], [3.0, 4.0], [0.0, 4.0]])\nD = pairwise_dist(X)\nprint(round(float(D[0, 1]), 4))",
+              "expectedOutput": "5.0",
+              "isHidden": false
+            }
+          ]
+        },
+        {
+          "id": "py-8-c2",
+          "title": "Nearest Neighbor",
+          "description": "Implement `nearest_idx(X, query)` that uses a `KDTree` to return the index of the point in `X` nearest to `query`.",
+          "starterCode": "import numpy as np\nfrom scipy.spatial import KDTree\n\ndef nearest_idx(X, query):\n    # Your code here\n    pass\n",
+          "testCases": [
+            {
+              "id": "py-8-c2-t1",
+              "description": "Nearest to [0.9, 0.1] is index 2",
+              "appendCode": "import numpy as np\nX = np.array([[0.0, 0.0], [3.0, 4.0], [1.0, 0.0]])\nprint(nearest_idx(X, np.array([0.9, 0.1])))",
+              "expectedOutput": "2",
+              "isHidden": false
+            }
+          ]
+        },
+        {
+          "id": "py-8-c3",
+          "title": "Cosine Distance",
+          "description": "Implement `cosine_dist(u, v)` that computes the cosine distance between two 1-D NumPy arrays **without** using SciPy.\n\n$$d_{\\cos}(u,v) = 1 - \\frac{u \\cdot v}{\\|u\\| \\|v\\|}$$",
+          "starterCode": "import numpy as np\n\ndef cosine_dist(u, v):\n    # Your code here\n    pass\n",
+          "testCases": [
+            {
+              "id": "py-8-c3-t1",
+              "description": "Orthogonal vectors have cosine distance 1",
+              "appendCode": "import numpy as np\nu = np.array([1.0, 0.0])\nv = np.array([0.0, 1.0])\nprint(round(cosine_dist(u, v), 4))",
+              "expectedOutput": "1.0",
+              "isHidden": false
+            },
+            {
+              "id": "py-8-c3-t2",
+              "description": "Identical vectors have cosine distance 0",
+              "appendCode": "import numpy as np\nu = np.array([1.0, 1.0])\nv = np.array([1.0, 1.0])\nprint(round(cosine_dist(u, v), 4))",
+              "expectedOutput": "0.0",
+              "isHidden": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "py-9",
+      "title": "Clustering Algorithms",
+      "order": 9,
+      "starterCode": "import numpy as np\nfrom scipy.spatial.distance import cdist\n\n# K-means: assign step\ndef assign_step(X, centroids):\n    D = cdist(X, centroids)     # (n, k) distances\n    return np.argmin(D, axis=1) # nearest centroid for each point\n\n# K-means: update step\ndef update_step(X, labels, k):\n    return np.array([X[labels == i].mean(axis=0) for i in range(k)])\n\n# Example: 2 obvious clusters\nX = np.array([[0,0],[1,0],[0,1],[10,10],[11,10],[10,11]], dtype=float)\nC = np.array([[0,0],[10,10]], dtype=float)\nlabels = assign_step(X, C)\nprint(\"Labels:\", labels)\nnew_C = update_step(X, labels, 2)\nprint(\"New centroids:\", new_C)\n",
+      "content": "## Clustering Algorithms\n\nClustering groups unlabeled data points by similarity — fundamental for robotics (terrain classification), machine learning (data exploration), and signal processing (pattern discovery).\n\n### K-means algorithm\n\nK-means alternates two steps until convergence:\n\n1. **Assign**: each point gets the label of its nearest centroid\n2. **Update**: each centroid moves to the mean of its assigned points\n\n```python\nfor iteration in range(max_iter):\n    labels = assign(X, centroids)      # step 1\n    new_centroids = update(X, labels)  # step 2\n    if converged(centroids, new_centroids):\n        break\n    centroids = new_centroids\n```\n\n### Choosing K — inertia & elbow method\n\n**Inertia** = sum of squared distances from each point to its centroid. Lower is better, but always decreases as K increases. The \"elbow\" is the K where inertia stops dropping sharply.\n\n```python\nfrom sklearn.cluster import KMeans\ninertias = [KMeans(n_clusters=k).fit(X).inertia_ for k in range(1, 10)]\n```\n\n### DBSCAN concept\n\nDensity-Based Spatial Clustering of Applications with Noise:\n- Groups points that are closely packed together\n- Marks outliers as noise (label = -1)\n- No need to specify K in advance\n\n```python\nfrom sklearn.cluster import DBSCAN\nlabels = DBSCAN(eps=0.5, min_samples=5).fit_predict(X)\n```\n\n### Silhouette score\n\nMeasures how similar a point is to its own cluster vs neighboring clusters. Ranges −1 to +1; higher is better.\n\n```python\nfrom sklearn.metrics import silhouette_score\nscore = silhouette_score(X, labels)  # higher → better separation\n```\n\n### When to use each\n\n| Algorithm | Best for |\n|-----------|----------|\n| K-means   | Compact, spherical clusters, known K |\n| DBSCAN    | Arbitrary shapes, unknown K, noisy data |\n| Hierarchical | Small datasets, dendrogram visualization |\n",
+      "challenges": [
+        {
+          "id": "py-9-c1",
+          "title": "Assign to Centroids",
+          "description": "Implement `assign_clusters(X, centroids)` that returns a NumPy array of cluster indices — for each point in `X`, the index of the nearest centroid in `centroids`.\n\nUse `cdist` from `scipy.spatial.distance`.",
+          "starterCode": "import numpy as np\nfrom scipy.spatial.distance import cdist\n\ndef assign_clusters(X, centroids):\n    # Your code here\n    pass\n",
+          "testCases": [
+            {
+              "id": "py-9-c1-t1",
+              "description": "Points assigned to nearest centroid",
+              "appendCode": "import numpy as np\nX = np.array([[0.0, 0.0], [10.0, 10.0], [0.5, 0.5]])\nC = np.array([[0.0, 0.0], [10.0, 10.0]])\nL = assign_clusters(X, C)\nprint(int(L[0]), int(L[1]), int(L[2]))",
+              "expectedOutput": "0 1 0",
+              "isHidden": false
+            }
+          ]
+        },
+        {
+          "id": "py-9-c2",
+          "title": "Recompute Centroids",
+          "description": "Implement `recompute_centroids(X, labels, k)` that returns a new (k, d) array of centroids, where centroid `i` is the mean of all points in `X` with `labels[j] == i`.",
+          "starterCode": "import numpy as np\n\ndef recompute_centroids(X, labels, k):\n    # Your code here\n    pass\n",
+          "testCases": [
+            {
+              "id": "py-9-c2-t1",
+              "description": "Centroids at cluster means",
+              "appendCode": "import numpy as np\nX = np.array([[0.0, 0.0], [2.0, 0.0], [10.0, 0.0], [12.0, 0.0]])\nL = np.array([0, 0, 1, 1])\nC = recompute_centroids(X, L, 2)\nprint(C[0].tolist(), C[1].tolist())",
+              "expectedOutput": "[1.0, 0.0] [11.0, 0.0]",
+              "isHidden": false
+            }
+          ]
+        },
+        {
+          "id": "py-9-c3",
+          "title": "Inertia",
+          "description": "Implement `inertia(X, labels, centroids)` that computes the total inertia: the sum of squared Euclidean distances from each point to its assigned centroid.",
+          "starterCode": "import numpy as np\n\ndef inertia(X, labels, centroids):\n    # Your code here\n    pass\n",
+          "testCases": [
+            {
+              "id": "py-9-c3-t1",
+              "description": "Inertia for two-cluster arrangement",
+              "appendCode": "import numpy as np\nX = np.array([[0.0, 0.0], [2.0, 0.0], [10.0, 0.0], [12.0, 0.0]])\nL = np.array([0, 0, 1, 1])\nC = np.array([[1.0, 0.0], [11.0, 0.0]])\nprint(round(inertia(X, L, C), 2))",
+              "expectedOutput": "4.0",
+              "isHidden": false
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "py-10",
+      "title": "Sparse Matrices",
+      "order": 10,
+      "starterCode": "import numpy as np\nimport scipy.sparse as sp\n\n# Sparse identity matrix\nI = sp.eye(5, format='csr')\nprint(\"nnz:\", I.nnz)          # number of nonzero entries\nprint(\"shape:\", I.shape)\n\n# Create CSR matrix from arrays\nrow = np.array([0, 1, 2])\ncol = np.array([0, 1, 2])\nval = np.array([1.0, 2.0, 3.0])\nS = sp.csr_matrix((val, (row, col)), shape=(3, 3))\n\n# Sparse matrix-vector product\nx = np.array([1.0, 2.0, 3.0])\nprint(\"S @ x =\", (S @ x).tolist())\n",
+      "content": "## Sparse Matrices\n\nMany real-world matrices are **sparse** — most entries are zero. Storing them densely wastes memory and time. `scipy.sparse` stores only the nonzero entries.\n\n### When matrices are sparse\n\n- **Finite element method (FEM)**: stiffness matrices couple only neighboring nodes\n- **Graph Laplacians**: each row has at most degree(v)+1 nonzeros\n- **Natural language processing**: term-document matrices\n- **Large-scale neural networks**: pruned weight matrices\n\n### CSR format (Compressed Sparse Row)\n\nStores three arrays:\n- `data`: nonzero values\n- `indices`: column indices of each nonzero\n- `indptr`: index into data/indices where each row starts\n\n```python\nimport scipy.sparse as sp\nimport numpy as np\n\n# From coordinate (COO) format\nrow = [0, 1, 2]\ncol = [0, 1, 2]\nval = [4.0, 5.0, 6.0]\nS = sp.csr_matrix((val, (row, col)), shape=(3, 3))\n\nprint(S.nnz)          # number of stored entries\nprint(S.toarray())    # convert to dense (careful: may be huge!)\n```\n\n### Key operations\n\n```python\nS @ x              # sparse matvec — O(nnz)\nS + T              # sparse addition\nS.T                # transpose\nS.toarray()        # dense copy\nsp.eye(n)          # sparse identity\nsp.diags([...])    # diagonal matrix\n```\n\n### Tridiagonal matrix example\n\nThe 1-D Laplacian (FEM diffusion operator) is tridiagonal:\n\n```\n [ 2 -1  0  0 ]\n [-1  2 -1  0 ]\n [ 0 -1  2 -1 ]\n [ 0  0 -1  2 ]\n```\n\n```python\nn = 4\nT = sp.diags([-1, 2, -1], [-1, 0, 1], shape=(n, n), format='csr')\n```\n",
+      "challenges": [
+        {
+          "id": "py-10-c1",
+          "title": "Sparse Identity",
+          "description": "Implement `sparse_eye(n)` that returns the n×n sparse identity matrix using `scipy.sparse.eye`.",
+          "starterCode": "import scipy.sparse as sp\n\ndef sparse_eye(n):\n    # Your code here\n    pass\n",
+          "testCases": [
+            {
+              "id": "py-10-c1-t1",
+              "description": "5×5 identity has 5 nonzeros",
+              "appendCode": "S = sparse_eye(5)\nprint(S.nnz)",
+              "expectedOutput": "5",
+              "isHidden": false
+            },
+            {
+              "id": "py-10-c1-t2",
+              "description": "Shape is (5, 5)",
+              "appendCode": "S = sparse_eye(5)\nprint(S.shape)",
+              "expectedOutput": "(5, 5)",
+              "isHidden": true
+            }
+          ]
+        },
+        {
+          "id": "py-10-c2",
+          "title": "Sparse Matvec",
+          "description": "Implement `sparse_matvec(S, x)` that returns the result of the sparse matrix-vector product `S @ x` as a NumPy array.",
+          "starterCode": "import numpy as np\nimport scipy.sparse as sp\n\ndef sparse_matvec(S, x):\n    # Your code here\n    pass\n",
+          "testCases": [
+            {
+              "id": "py-10-c2-t1",
+              "description": "Identity times vector is vector",
+              "appendCode": "import numpy as np\nfrom scipy.sparse import eye\nS = eye(3, format='csr')\nx = np.array([1.0, 2.0, 3.0])\nprint(sparse_matvec(S, x).tolist())",
+              "expectedOutput": "[1.0, 2.0, 3.0]",
+              "isHidden": false
+            }
+          ]
+        },
+        {
+          "id": "py-10-c3",
+          "title": "Tridiagonal",
+          "description": "Implement `tridiagonal(n)` that returns the n×n sparse tridiagonal matrix with `2` on the main diagonal and `-1` on the sub- and super-diagonals, using `scipy.sparse.diags`.",
+          "starterCode": "import scipy.sparse as sp\n\ndef tridiagonal(n):\n    # Your code here\n    pass\n",
+          "testCases": [
+            {
+              "id": "py-10-c3-t1",
+              "description": "4×4 tridiagonal has 10 nonzeros",
+              "appendCode": "T = tridiagonal(4)\nprint(T.nnz)",
+              "expectedOutput": "10",
+              "isHidden": false
+            },
+            {
+              "id": "py-10-c3-t2",
+              "description": "Diagonal is 2, off-diagonal is -1",
+              "appendCode": "T = tridiagonal(4)\nprint(T.toarray()[0, 0], T.toarray()[0, 1])",
+              "expectedOutput": "2.0 -1.0",
+              "isHidden": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "py-11",
+      "title": "Geospatial Basics",
+      "order": 11,
+      "starterCode": "import math\n\ndef haversine(lat1, lon1, lat2, lon2):\n    \"\"\"Great-circle distance in km between two (lat, lon) points.\"\"\"\n    R = 6371.0  # Earth radius in km\n    phi1, phi2 = math.radians(lat1), math.radians(lat2)\n    dphi = math.radians(lat2 - lat1)\n    dlam = math.radians(lon2 - lon1)\n    a = math.sin(dphi/2)**2 + math.cos(phi1)*math.cos(phi2)*math.sin(dlam/2)**2\n    return 2 * R * math.asin(math.sqrt(a))\n\n# NYC to Boston\nnyc_lat, nyc_lon = 40.7128, -74.0060\nbos_lat, bos_lon = 42.3601, -71.0589\nprint(f\"NYC → Boston: {haversine(nyc_lat, nyc_lon, bos_lat, bos_lon):.1f} km\")\n",
+      "content": "## Geospatial Basics\n\nGeospatial data — locations on Earth described by latitude and longitude — appears in robotics (GPS navigation), environmental science, and logistics. Key operations: distance, nearest-location queries, and bounding-box filtering.\n\n### Latitude & Longitude\n\n- **Latitude** (φ): −90° (South Pole) to +90° (North Pole)\n- **Longitude** (λ): −180° to +180°, measured east/west of the Prime Meridian\n\nCoordinates are in degrees; trig functions need radians.\n\n### Haversine formula\n\nComputes **great-circle distance** (shortest path on a sphere) between two points:\n\n$$a = \\sin^2\\!\\left(\\frac{\\Delta\\phi}{2}\\right) + \\cos\\phi_1\\cos\\phi_2\\sin^2\\!\\left(\\frac{\\Delta\\lambda}{2}\\right)$$\n$$d = 2R\\arcsin(\\sqrt{a})$$\n\nwhere R ≈ 6371 km is Earth's mean radius.\n\n```python\nimport math\n\ndef haversine(lat1, lon1, lat2, lon2):\n    R = 6371.0\n    phi1, phi2 = math.radians(lat1), math.radians(lat2)\n    dphi = math.radians(lat2 - lat1)\n    dlam = math.radians(lon2 - lon1)\n    a = (math.sin(dphi/2)**2\n         + math.cos(phi1)*math.cos(phi2)*math.sin(dlam/2)**2)\n    return 2 * R * math.asin(math.sqrt(a))\n```\n\n### Bounding box query\n\nFast pre-filter before precise distance calculation:\n\n```python\ndef in_bbox(lat, lon, lat_min, lat_max, lon_min, lon_max):\n    return lat_min <= lat <= lat_max and lon_min <= lon <= lon_max\n```\n\n### Nearest location\n\n```python\ndef find_nearest(lat, lon, locations):\n    return min(locations, key=lambda loc: haversine(lat, lon, loc['lat'], loc['lon']))\n```\n\n### WGS84 vs local projections\n\n- **WGS84**: global standard (lat/lon degrees); used by GPS\n- **UTM**: projects Earth onto flat zones in meters — better for local distance calculations\n- For robotics at city scale, differences matter (≥1 m error for naive Euclidean on lat/lon)\n",
+      "challenges": [
+        {
+          "id": "py-11-c1",
+          "title": "Haversine",
+          "description": "Implement `haversine(lat1, lon1, lat2, lon2)` that returns the great-circle distance in km between two geographic coordinates.\n\nUse Earth radius R = 6371.0 km.",
+          "starterCode": "import math\n\ndef haversine(lat1, lon1, lat2, lon2):\n    # Your code here\n    pass\n",
+          "testCases": [
+            {
+              "id": "py-11-c1-t1",
+              "description": "Same point → 0 km",
+              "appendCode": "print(round(haversine(0.0, 0.0, 0.0, 0.0), 4))",
+              "expectedOutput": "0.0",
+              "isHidden": false
+            },
+            {
+              "id": "py-11-c1-t2",
+              "description": "1 degree of longitude at equator ≈ 111.2 km",
+              "appendCode": "print(round(haversine(0.0, 0.0, 0.0, 1.0), 1))",
+              "expectedOutput": "111.2",
+              "isHidden": false
+            }
+          ]
+        },
+        {
+          "id": "py-11-c2",
+          "title": "Nearest Location",
+          "description": "Implement `find_nearest(lat, lon, locations)` where `locations` is a list of dicts with keys `'name'`, `'lat'`, `'lon'`. Return the `'name'` of the nearest location.\n\nYou may use (or reimplement) the haversine formula.",
+          "starterCode": "import math\n\ndef haversine(lat1, lon1, lat2, lon2):\n    R = 6371.0\n    phi1, phi2 = math.radians(lat1), math.radians(lat2)\n    dphi = math.radians(lat2 - lat1)\n    dlam = math.radians(lon2 - lon1)\n    a = math.sin(dphi/2)**2 + math.cos(phi1)*math.cos(phi2)*math.sin(dlam/2)**2\n    return 2 * R * math.asin(math.sqrt(a))\n\ndef find_nearest(lat, lon, locations):\n    # Your code here\n    pass\n",
+          "testCases": [
+            {
+              "id": "py-11-c2-t1",
+              "description": "Point nearest to [1, 1] is A at origin",
+              "appendCode": "locs = [{'name': 'A', 'lat': 0.0, 'lon': 0.0}, {'name': 'B', 'lat': 10.0, 'lon': 0.0}, {'name': 'C', 'lat': 0.0, 'lon': 10.0}]\nprint(find_nearest(1.0, 1.0, locs))",
+              "expectedOutput": "A",
+              "isHidden": false
+            }
+          ]
+        },
+        {
+          "id": "py-11-c3",
+          "title": "Bounding Box Filter",
+          "description": "Implement `bbox_filter(locations, lat_min, lat_max, lon_min, lon_max)` that returns a list of `'name'` strings for all locations whose `lat` and `lon` fall within the given bounding box (inclusive).",
+          "starterCode": "def bbox_filter(locations, lat_min, lat_max, lon_min, lon_max):\n    # Your code here\n    pass\n",
+          "testCases": [
+            {
+              "id": "py-11-c3-t1",
+              "description": "Only NYC is inside the bbox",
+              "appendCode": "locs = [{'name': 'NYC', 'lat': 40.7, 'lon': -74.0}, {'name': 'London', 'lat': 51.5, 'lon': -0.1}, {'name': 'Tokyo', 'lat': 35.7, 'lon': 139.7}]\nprint(bbox_filter(locs, 30.0, 45.0, -80.0, -60.0))",
+              "expectedOutput": "['NYC']",
+              "isHidden": false
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "py-12",
+      "title": "Data Pipeline Design",
+      "order": 12,
+      "starterCode": "from functools import reduce\n\n# Function composition: compose(f, g)(x) = f(g(x))\ndef compose(*fns):\n    return reduce(lambda f, g: lambda x: f(g(x)), fns)\n\ndouble = lambda x: x * 2\nadd1   = lambda x: x + 1\n\ndouble_then_add1 = compose(add1, double)\nprint(double_then_add1(3))   # add1(double(3)) = 7\n\n# Pipeline: apply functions left-to-right\ndef pipeline(data, *fns):\n    for fn in fns:\n        data = fn(data)\n    return data\n\nresult = pipeline(5, lambda x: x+1, lambda x: x*2)\nprint(result)  # (5+1)*2 = 12\n",
+      "content": "## Data Pipeline Design\n\nA **pipeline** is a sequence of transformations applied to data, where the output of each step feeds the next. Well-designed pipelines are modular, testable, and composable.\n\n### ETL pattern\n\n**Extract → Transform → Load**\n\n```python\ndef extract(source):\n    return load_raw_data(source)\n\ndef transform(data):\n    return clean_and_enrich(data)\n\ndef load(data, dest):\n    write_to_database(data, dest)\n\n# Pipeline\ndata = extract('s3://bucket/raw.csv')\ndata = transform(data)\nload(data, 'postgres://...')\n```\n\n### Function composition\n\n```python\nfrom functools import reduce\n\ndef compose(*fns):\n    \"\"\"compose(f, g, h)(x) = f(g(h(x))) — right-to-left\"\"\"\n    return reduce(lambda f, g: lambda x: f(g(x)), fns)\n\nnormalize = compose(clip, scale, center)  # center first\n```\n\n### Validation in pipelines\n\n```python\ndef validated(fn, validator):\n    def wrapper(data):\n        errors = validator(data)\n        if errors:\n            raise ValueError(f\"Validation failed: {errors}\")\n        return fn(data)\n    return wrapper\n```\n\n### Chunked processing\n\nFor large datasets that don't fit in memory, process in chunks:\n\n```python\ndef chunk(lst, size):\n    return [lst[i:i+size] for i in range(0, len(lst), size)]\n\nfor batch in chunk(records, 1000):\n    process(batch)\n```\n\n### Functional vs OOP\n\n**Functional**: compose pure functions — easy to test, parallelize, reason about.\n\n**OOP**: class-based `Pipeline` with `.add_step()` — easier to serialize, inspect, and configure from files.\n\n```python\nclass Pipeline:\n    def __init__(self):\n        self.steps = []\n    def add(self, fn):\n        self.steps.append(fn); return self\n    def run(self, data):\n        for fn in self.steps:\n            data = fn(data)\n        return data\n```\n",
+      "challenges": [
+        {
+          "id": "py-12-c1",
+          "title": "Function Composition",
+          "description": "Implement `compose(*fns)` that returns a new function applying `fns` right-to-left.\n\n`compose(f, g)(x)` should equal `f(g(x))`.",
+          "starterCode": "def compose(*fns):\n    # Your code here\n    pass\n",
+          "testCases": [
+            {
+              "id": "py-12-c1-t1",
+              "description": "compose(double, add1)(3) = double(add1(3)) = 8",
+              "appendCode": "double = lambda x: x * 2\nadd1 = lambda x: x + 1\nf = compose(double, add1)\nprint(f(3))",
+              "expectedOutput": "8",
+              "isHidden": false
+            }
+          ]
+        },
+        {
+          "id": "py-12-c2",
+          "title": "Pipeline",
+          "description": "Implement `pipeline(data, *fns)` that applies each function in `fns` left-to-right to `data`, threading the result through each step.",
+          "starterCode": "def pipeline(data, *fns):\n    # Your code here\n    pass\n",
+          "testCases": [
+            {
+              "id": "py-12-c2-t1",
+              "description": "pipeline(5, +1, *2, -3) = (5+1)*2-3 = 9",
+              "appendCode": "result = pipeline(5, lambda x: x+1, lambda x: x*2, lambda x: x-3)\nprint(result)",
+              "expectedOutput": "9",
+              "isHidden": false
+            }
+          ]
+        },
+        {
+          "id": "py-12-c3",
+          "title": "Chunked Processing",
+          "description": "Implement `chunk(lst, size)` that splits `lst` into sub-lists of length `size`. The last chunk may be shorter if `len(lst)` is not divisible by `size`.",
+          "starterCode": "def chunk(lst, size):\n    # Your code here\n    pass\n",
+          "testCases": [
+            {
+              "id": "py-12-c3-t1",
+              "description": "7-element list chunked by 3",
+              "appendCode": "print(chunk([1, 2, 3, 4, 5, 6, 7], 3))",
+              "expectedOutput": "[[1, 2, 3], [4, 5, 6], [7]]",
+              "isHidden": false
+            },
+            {
+              "id": "py-12-c3-t2",
+              "description": "List shorter than chunk size",
+              "appendCode": "print(chunk([1, 2], 5))",
+              "expectedOutput": "[[1, 2]]",
+              "isHidden": true
+            }
+          ]
+        }
+      ]
     }
   ]
 }

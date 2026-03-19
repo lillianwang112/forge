@@ -126,7 +126,7 @@ function ActionButton({ onClick, variant = 'default', children }) {
 }
 
 export default function SettingsPage() {
-  const [theme, setTheme]           = useState('dark');
+  const [theme, setTheme]           = useState('light'); // light is the default
   const [fontSize, setFontSize]     = useState(14);
   const [language, setLanguage]     = useState('python');
   const [aiModel, setAiModel]       = useState('claude-sonnet-4-6');
@@ -138,12 +138,12 @@ export default function SettingsPage() {
   useEffect(() => {
     (async () => {
       const [t, fs, lang, ai] = await Promise.all([
-        getSetting('theme'),
+        getSetting('theme'),  // falls back to 'light'
         getSetting('editorFontSize'),
         getSetting('defaultLanguage'),
         getSetting('aiModel'),
       ]);
-      if (t)    setTheme(t);
+      setTheme(t ?? 'light');
       if (fs)   setFontSize(Number(fs));
       if (lang) setLanguage(lang);
       if (ai)   setAiModel(ai);
@@ -156,10 +156,20 @@ export default function SettingsPage() {
     setTimeout(() => setToast(null), 2500);
   }
 
+  // Re-sync if Shell's header toggle changed the theme while this page was open
+  useEffect(() => {
+    const syncTheme = () => {
+      getSetting('theme').then((t) => { if (t) setTheme(t); });
+    };
+    window.addEventListener('forge-theme-changed', syncTheme);
+    return () => window.removeEventListener('forge-theme-changed', syncTheme);
+  }, []);
+
   async function handleTheme(val) {
     setTheme(val);
     await setSetting('theme', val);
     document.documentElement.setAttribute('data-theme', val);
+    window.dispatchEvent(new CustomEvent('forge-theme-changed'));
   }
 
   async function handleFontSize(val) {

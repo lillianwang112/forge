@@ -3,20 +3,33 @@ import { Outlet } from 'react-router-dom';
 import Sidebar from './Sidebar';
 import Header from './Header';
 import KeyboardShortcutsModal from './KeyboardShortcutsModal';
-import { getSetting } from '../../storage/db.js';
+import { getSetting, setSetting } from '../../storage/db.js';
+
+function applyTheme(theme) {
+  document.documentElement.setAttribute('data-theme', theme);
+}
 
 export default function Shell() {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
-  const [shortcutsOpen, setShortcutsOpen] = useState(false);
+  const [shortcutsOpen, setShortcutsOpen]       = useState(false);
+  const [theme, setTheme]                        = useState('light'); // light is default
 
-  // Load and apply theme on mount
+  // Load saved theme on mount; fall back to 'light'
   useEffect(() => {
-    getSetting('theme').then((theme) => {
-      if (theme) {
-        document.documentElement.setAttribute('data-theme', theme);
-      }
+    getSetting('theme').then((saved) => {
+      const t = saved ?? 'light';
+      setTheme(t);
+      applyTheme(t);
     });
   }, []);
+
+  const toggleTheme = async () => {
+    const next = theme === 'light' ? 'dark' : 'light';
+    setTheme(next);
+    applyTheme(next);
+    await setSetting('theme', next);
+    window.dispatchEvent(new CustomEvent('forge-theme-changed'));
+  };
 
   // Global '?' key to open keyboard shortcuts modal
   useEffect(() => {
@@ -56,7 +69,7 @@ export default function Shell() {
           minWidth: 0,
         }}
       >
-        <Header />
+        <Header theme={theme} onToggleTheme={toggleTheme} />
         <main
           style={{
             flex: 1,

@@ -1,6 +1,7 @@
 @import "tailwindcss";
 @import "./animations.css";
 
+/* ---- Dark theme (default) ---- */
 :root {
   --bg-primary: #0a0e14;
   --bg-secondary: #0d1117;
@@ -21,6 +22,30 @@
   --font-mono: 'JetBrains Mono', monospace;
 }
 
+/* ---- Light theme ---- */
+[data-theme="light"] {
+  /* Layered whites/greys — clear depth hierarchy */
+  --bg-primary:   #f3f4f6;   /* page background */
+  --bg-secondary: #ffffff;   /* sidebar, header */
+  --bg-surface:   #ffffff;   /* cards, panels */
+  --bg-elevated:  #eaecf0;   /* inputs, badges */
+  --border:       #d1d5db;
+  --border-focus: #2563eb;
+
+  /* Text — strong contrast */
+  --text-primary:   #111827;
+  --text-secondary: #4b5563;
+  --text-muted:     #9ca3af;
+
+  /* Accents — saturated for legibility on white */
+  --accent-green:  #16a34a;
+  --accent-purple: #7c3aed;
+  --accent-blue:   #2563eb;
+  --accent-orange: #b45309;
+  --accent-red:    #dc2626;
+}
+
+/* ---- Base reset ---- */
 *,
 *::before,
 *::after {
@@ -47,60 +72,44 @@ body {
   color: var(--text-primary);
 }
 
-/* Scrollbar styling */
-::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
+[data-theme="light"] ::selection {
+  background-color: rgba(37, 99, 235, 0.18);
 }
 
-::-webkit-scrollbar-track {
-  background: var(--bg-secondary);
+/* ---- Scrollbar ---- */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track  { background: var(--bg-secondary); }
+::-webkit-scrollbar-thumb  { background: var(--border); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--text-muted); }
+* { scrollbar-width: thin; scrollbar-color: var(--border) var(--bg-secondary); }
+
+code, pre, kbd { font-family: var(--font-mono); }
+
+/* ---- Light theme surface adjustments ---- */
+
+/* Monaco editor — light mode gets a subtle off-white background */
+[data-theme="light"] .monaco-editor,
+[data-theme="light"] .monaco-editor-background,
+[data-theme="light"] .monaco-editor .margin {
+  background-color: #f8fafc !important;
 }
 
-::-webkit-scrollbar-thumb {
-  background: var(--border);
-  border-radius: 3px;
-}
-
-::-webkit-scrollbar-thumb:hover {
-  background: var(--text-muted);
-}
-
-/* Firefox scrollbar */
-* {
-  scrollbar-width: thin;
-  scrollbar-color: var(--border) var(--bg-secondary);
-}
-
-code,
-pre,
-kbd {
-  font-family: var(--font-mono);
-}
-
-/* ---- Light theme ---- */
-[data-theme="light"] {
-  --bg-primary: #f6f8fa;
-  --bg-secondary: #ffffff;
-  --bg-surface: #ffffff;
-  --bg-elevated: #f0f2f4;
-  --border: #d0d7de;
-  --border-focus: #0969da;
-  --text-primary: #1f2328;
-  --text-secondary: #57606a;
-  --text-muted: #8c959f;
-  --accent-green: #1a7f37;
-  --accent-purple: #8250df;
-  --accent-blue: #0969da;
-  --accent-orange: #953800;
-  --accent-red: #cf222e;
-}
-
-[data-theme="light"] body {
-  background-color: var(--bg-primary);
+/* Output / feedback panels in light mode */
+[data-theme="light"] pre {
+  background-color: var(--bg-elevated);
   color: var(--text-primary);
 }
 
-[data-theme="light"] ::selection {
-  background-color: rgba(9, 105, 218, 0.2);
+/* Inline code in markdown */
+[data-theme="light"] code:not([class]) {
+  background-color: rgba(37,99,235,0.07);
+  color: var(--accent-purple);
+  padding: 1px 4px;
+  border-radius: 3px;
+}
+
+/* Sidebar active item in light mode */
+[data-theme="light"] nav a[aria-current="page"],
+[data-theme="light"] nav .active {
+  background-color: rgba(37, 99, 235, 0.08);
 }

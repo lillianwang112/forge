@@ -141,6 +141,320 @@
           ]
         }
       ]
+    },
+    {
+      "id": "sh-3",
+      "title": "Testing with pytest",
+      "order": 3,
+      "starterCode": "# Testing principles — illustrated with plain assertions\n# (pytest runs in the terminal; here we simulate the pattern)\n\ndef safe_divide(a, b):\n    \"\"\"Divide a by b, raising ValueError if b is zero.\"\"\"\n    if b == 0:\n        raise ValueError(\"division by zero\")\n    return a / b\n\n# Arrange - Act - Assert pattern\ndef test_normal_division():\n    result = safe_divide(10, 2)   # Act\n    assert result == 5.0          # Assert\n\ndef test_division_by_zero():\n    try:\n        safe_divide(1, 0)\n        assert False, \"should have raised\"\n    except ValueError as e:\n        assert str(e) == \"division by zero\"\n\ntest_normal_division()\ntest_division_by_zero()\nprint(\"All tests passed!\")\n",
+      "content": "## Testing with pytest\n\nTesting is how you prove your code is correct — to collaborators, reviewers, and future-you. pytest is the de-facto Python testing framework: minimal boilerplate, expressive assertions, and powerful fixtures.\n\n### pytest structure\n\n```python\n# test_solver.py\ndef test_basic_case():\n    result = my_function(input)\n    assert result == expected\n\ndef test_edge_case():\n    assert my_function([]) == []\n```\n\nRun with `pytest test_solver.py` or just `pytest` to discover all `test_*.py` files.\n\n### AAA pattern: Arrange — Act — Assert\n\n```python\ndef test_lqr_gain():\n    # Arrange\n    A = np.eye(2)\n    B = np.ones((2, 1))\n    Q = np.eye(2)\n    R = np.eye(1)\n\n    # Act\n    K = compute_lqr(A, B, Q, R)\n\n    # Assert\n    assert K.shape == (1, 2)\n    assert np.all(np.isfinite(K))\n```\n\n### Parametrize — test many cases with one function\n\n```python\nimport pytest\n\n@pytest.mark.parametrize(\"a, b, expected\", [\n    (2, 3, 5),\n    (0, 0, 0),\n    (-1, 1, 0),\n])\ndef test_add(a, b, expected):\n    assert add(a, b) == expected\n```\n\n### Fixtures — reusable setup\n\n```python\n@pytest.fixture\ndef sample_df():\n    return pd.DataFrame({'x': [1, 2, 3], 'y': [4, 5, 6]})\n\ndef test_shape(sample_df):\n    assert sample_df.shape == (3, 2)\n```\n\n### Testing for exceptions\n\n```python\ndef test_raises_on_bad_input():\n    with pytest.raises(ValueError, match=\"division by zero\"):\n        safe_divide(1, 0)\n```\n\n### TDD mindset\n\n1. Write a failing test first\n2. Write the minimal code to make it pass\n3. Refactor\n\nTests as documentation: a test suite explains exactly what the code is supposed to do.\n",
+      "challenges": [
+        {
+          "id": "sh-3-c1",
+          "title": "Testable Function",
+          "description": "Implement `safe_divide(a, b)` that returns `a / b` as a float. If `b == 0`, raise a `ValueError` with the message `\"division by zero\"`.",
+          "starterCode": "def safe_divide(a, b):\n    # Your code here\n    pass\n",
+          "testCases": [
+            {
+              "id": "sh-3-c1-t1",
+              "description": "Normal division",
+              "appendCode": "print(safe_divide(10, 2))",
+              "expectedOutput": "5.0",
+              "isHidden": false
+            },
+            {
+              "id": "sh-3-c1-t2",
+              "description": "Division by zero raises ValueError",
+              "appendCode": "try:\n    safe_divide(1, 0)\nexcept ValueError as e:\n    print(str(e))",
+              "expectedOutput": "division by zero",
+              "isHidden": false
+            }
+          ]
+        },
+        {
+          "id": "sh-3-c2",
+          "title": "Property-Based Thinking",
+          "description": "Implement `is_sorted(lst)` that returns `True` if `lst` is non-decreasing (each element ≤ the next), and `False` otherwise. An empty list is considered sorted.",
+          "starterCode": "def is_sorted(lst):\n    # Your code here\n    pass\n",
+          "testCases": [
+            {
+              "id": "sh-3-c2-t1",
+              "description": "Non-decreasing list is sorted",
+              "appendCode": "print(is_sorted([1, 2, 2, 3]))",
+              "expectedOutput": "True",
+              "isHidden": false
+            },
+            {
+              "id": "sh-3-c2-t2",
+              "description": "Out-of-order list is not sorted",
+              "appendCode": "print(is_sorted([1, 3, 2]))",
+              "expectedOutput": "False",
+              "isHidden": false
+            },
+            {
+              "id": "sh-3-c2-t3",
+              "description": "Empty list is sorted",
+              "appendCode": "print(is_sorted([]))",
+              "expectedOutput": "True",
+              "isHidden": true
+            }
+          ]
+        },
+        {
+          "id": "sh-3-c3",
+          "title": "Parameterized Logic",
+          "description": "Implement `classify_triangle(a, b, c)` that returns:\n- `'equilateral'` if all sides are equal\n- `'isosceles'` if exactly two sides are equal\n- `'scalene'` if all sides are different\n- `'invalid'` if the sides do not form a valid triangle (any side must be strictly less than the sum of the other two; also any side ≤ 0 is invalid)",
+          "starterCode": "def classify_triangle(a, b, c):\n    # Your code here\n    pass\n",
+          "testCases": [
+            {
+              "id": "sh-3-c3-t1",
+              "description": "All equal sides → equilateral",
+              "appendCode": "print(classify_triangle(3, 3, 3))",
+              "expectedOutput": "equilateral",
+              "isHidden": false
+            },
+            {
+              "id": "sh-3-c3-t2",
+              "description": "All different sides → scalene",
+              "appendCode": "print(classify_triangle(3, 4, 5))",
+              "expectedOutput": "scalene",
+              "isHidden": false
+            },
+            {
+              "id": "sh-3-c3-t3",
+              "description": "Zero side → invalid",
+              "appendCode": "print(classify_triangle(0, 1, 1))",
+              "expectedOutput": "invalid",
+              "isHidden": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "sh-4",
+      "title": "Data Validation & Error Handling",
+      "order": 4,
+      "starterCode": "from dataclasses import dataclass\nfrom typing import Tuple, Optional\n\n# Custom exception hierarchy\nclass ValidationError(Exception):\n    pass\n\n# Dataclass as schema\n@dataclass\nclass SensorReading:\n    sensor_id: str\n    value: float\n    unit: str\n\n# Validator\ndef validate_reading(r: SensorReading) -> Tuple[bool, Optional[str]]:\n    if not r.sensor_id:\n        return False, \"sensor_id must not be empty\"\n    if not isinstance(r.value, (int, float)):\n        return False, \"value must be numeric\"\n    return True, None\n\nr = SensorReading(sensor_id=\"imu-1\", value=9.81, unit=\"m/s^2\")\nok, err = validate_reading(r)\nprint(ok, err)\n",
+      "content": "## Data Validation & Error Handling\n\nProduction code fails gracefully. Research code that crashes silently corrupts results. Proper validation and error handling are how you catch problems early and communicate failures clearly.\n\n### Python exception hierarchy\n\n```python\nBaseException\n└── Exception\n    ├── ValueError      # bad value (e.g., negative radius)\n    ├── TypeError       # wrong type\n    ├── KeyError        # missing dict key\n    ├── IndexError      # out-of-range list index\n    └── RuntimeError    # general runtime problem\n```\n\n### Custom exceptions\n\n```python\nclass ValidationError(Exception):\n    pass\n\nclass SchemaError(ValidationError):\n    pass\n\nraise ValidationError(\"value must be positive\")\n```\n\n### try / except / finally\n\n```python\ntry:\n    result = risky_operation()\nexcept ValueError as e:\n    print(f\"Bad value: {e}\")\nexcept (KeyError, IndexError) as e:\n    print(f\"Missing data: {e}\")\nexcept Exception as e:\n    logging.error(\"Unexpected error\", exc_info=True)\n    raise    # re-raise after logging\nfinally:\n    cleanup()  # always runs\n```\n\n### Validation patterns\n\n**Early return** — validate at the top and fail fast:\n\n```python\ndef process(record):\n    if 'id' not in record:\n        raise ValueError(\"record missing 'id'\")\n    if record['value'] <= 0:\n        raise ValueError(\"value must be positive\")\n    # ... safe to proceed\n```\n\n**Accumulate errors** — collect all problems before raising:\n\n```python\nerrors = []\nif 'id' not in record: errors.append(\"missing 'id'\")\nif record.get('value', 0) <= 0: errors.append(\"value must be positive\")\nif errors:\n    raise ValidationError('; '.join(errors))\n```\n\n### Logging vs print\n\n```python\nimport logging\nlogging.basicConfig(level=logging.INFO)\n\nlogging.debug(\"Detailed trace\")     # dev only\nlogging.info(\"Pipeline started\")    # normal operation\nlogging.warning(\"Missing field\")    # recoverable issue\nlogging.error(\"Validation failed\")  # non-fatal error\nlogging.critical(\"DB connection lost\")  # fatal\n```\n",
+      "challenges": [
+        {
+          "id": "sh-4-c1",
+          "title": "Custom Exception",
+          "description": "Implement `parse_positive_int(s)` that:\n- Returns `int(s)` if `s` is a valid string representation of a positive integer (> 0)\n- Raises `ValueError` with the message `\"invalid positive integer: {s}\"` otherwise",
+          "starterCode": "def parse_positive_int(s):\n    # Your code here\n    pass\n",
+          "testCases": [
+            {
+              "id": "sh-4-c1-t1",
+              "description": "Valid positive integer string",
+              "appendCode": "print(parse_positive_int('42'))",
+              "expectedOutput": "42",
+              "isHidden": false
+            },
+            {
+              "id": "sh-4-c1-t2",
+              "description": "Negative number raises ValueError",
+              "appendCode": "try:\n    parse_positive_int('-5')\nexcept ValueError as e:\n    print(str(e))",
+              "expectedOutput": "invalid positive integer: -5",
+              "isHidden": false
+            }
+          ]
+        },
+        {
+          "id": "sh-4-c2",
+          "title": "Validate Schema",
+          "description": "Implement `validate_record(record)` where `record` is a dict.\n\nReturn `(True, None)` if `record` contains all required keys `'id'`, `'name'`, `'value'` AND `record['value']` is a positive float (or int > 0).\n\nReturn `(False, error_message)` otherwise, where `error_message` is a descriptive string.",
+          "starterCode": "def validate_record(record):\n    # Your code here\n    pass\n",
+          "testCases": [
+            {
+              "id": "sh-4-c2-t1",
+              "description": "Valid record returns (True, None)",
+              "appendCode": "ok, err = validate_record({'id': 1, 'name': 'x', 'value': 3.14})\nprint(ok)",
+              "expectedOutput": "True",
+              "isHidden": false
+            },
+            {
+              "id": "sh-4-c2-t2",
+              "description": "Missing value key returns (False, message containing 'value')",
+              "appendCode": "ok, err = validate_record({'id': 1, 'name': 'x'})\nprint(ok, 'value' in err)",
+              "expectedOutput": "False True",
+              "isHidden": false
+            }
+          ]
+        },
+        {
+          "id": "sh-4-c3",
+          "title": "Retry Logic",
+          "description": "Implement `with_fallback(fn, fallback)` that calls `fn()` and returns its result. If `fn()` raises any exception, return `fallback` instead.",
+          "starterCode": "def with_fallback(fn, fallback):\n    # Your code here\n    pass\n",
+          "testCases": [
+            {
+              "id": "sh-4-c3-t1",
+              "description": "Successful function returns its result",
+              "appendCode": "print(with_fallback(lambda: 42, 0))",
+              "expectedOutput": "42",
+              "isHidden": false
+            },
+            {
+              "id": "sh-4-c3-t2",
+              "description": "Failing function returns fallback",
+              "appendCode": "print(with_fallback(lambda: 1/0, -1))",
+              "expectedOutput": "-1",
+              "isHidden": false
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "sh-5",
+      "title": "Code Review Practices",
+      "order": 5,
+      "starterCode": "import re\n\n# --- BEFORE: code with smells ---\ndef calc(x, n=365, r=0.07):\n    # magic numbers, unclear name\n    result = []\n    for i in range(n):\n        result.append(x * (1 + r/365) ** i)\n    return result\n\n# --- AFTER: refactored ---\nDAYS_PER_YEAR = 365\nDEFAULT_RATE  = 0.07\n\ndef daily_compound_values(principal: float, annual_rate: float = DEFAULT_RATE, days: int = DAYS_PER_YEAR):\n    \"\"\"Return daily account values for a compound-interest investment.\"\"\"\n    daily_rate = annual_rate / DAYS_PER_YEAR\n    return [principal * (1 + daily_rate) ** day for day in range(days)]\n\nprint(daily_compound_values(1000.0)[0])\nprint(round(daily_compound_values(1000.0)[-1], 2))\n",
+      "content": "## Code Review Practices\n\nCode review is how knowledge spreads in a team, bugs get caught before they matter, and code quality stays high. Giving and receiving reviews well is a core engineering skill.\n\n### What to look for\n\n1. **Correctness** — does the code do what it claims?\n2. **Readability** — can you understand it in 60 seconds?\n3. **Edge cases** — what happens with empty input, zero, negative numbers?\n4. **Performance** — any O(n²) where O(n log n) would do?\n5. **Security** — any injection risks, unvalidated inputs?\n\n### Common Python anti-patterns\n\n**Magic numbers** — unnamed numeric literals:\n```python\n# Bad\nif temp > 373.15:\n    ...\n\n# Good\nBOILING_POINT_K = 373.15\nif temp > BOILING_POINT_K:\n    ...\n```\n\n**Mutable default arguments** — classic Python gotcha:\n```python\n# Bad — the list is shared across all calls!\ndef add_item(item, lst=[]):\n    lst.append(item)\n    return lst\n\n# Good\ndef add_item(item, lst=None):\n    if lst is None:\n        lst = []\n    lst.append(item)\n    return lst\n```\n\n**Bare except** — swallows all errors silently:\n```python\n# Bad\ntry:\n    result = compute()\nexcept:\n    pass\n\n# Good\ntry:\n    result = compute()\nexcept ValueError as e:\n    logging.warning(f\"Validation failed: {e}\")\n    result = default_value\n```\n\n**Long functions** — functions should do one thing:\n- Rule of thumb: if a function exceeds ~20 meaningful lines, consider splitting it\n\n### How to give constructive feedback\n\n- **Prefer questions** — \"What happens if `n=0` here?\" not \"This is wrong\"\n- **Cite the reason** — \"This could raise `KeyError` if the dict is empty\"\n- **Distinguish blocking vs non-blocking** — prefix optional suggestions with \"nit:\"\n- **Praise what's good** — positive reinforcement helps too\n",
+      "challenges": [
+        {
+          "id": "sh-5-c1",
+          "title": "Detect Magic Numbers",
+          "description": "Implement `has_magic_numbers(code_str)` that returns `True` if the code string contains numeric literals ≥ 2 as standalone tokens (use the regex pattern `\\b[2-9]\\d*\\b` or `\\b[1-9]\\d+\\b` to find numbers ≥ 2 or multi-digit).\n\nSimple heuristic: return `True` if `re.search(r'\\b[2-9]\\d*\\b', code_str)` finds a match.",
+          "starterCode": "import re\n\ndef has_magic_numbers(code_str):\n    # Your code here\n    pass\n",
+          "testCases": [
+            {
+              "id": "sh-5-c1-t1",
+              "description": "Code with 42 has magic numbers",
+              "appendCode": "print(has_magic_numbers('x = 42 + y'))",
+              "expectedOutput": "True",
+              "isHidden": false
+            },
+            {
+              "id": "sh-5-c1-t2",
+              "description": "Code with only 1 has no magic numbers",
+              "appendCode": "print(has_magic_numbers('x = 1 + y'))",
+              "expectedOutput": "False",
+              "isHidden": false
+            }
+          ]
+        },
+        {
+          "id": "sh-5-c2",
+          "title": "Function Length",
+          "description": "Implement `count_lines(fn_source)` that counts non-empty, non-comment lines in a function source string.\n\nA comment line is one whose first non-whitespace character is `#`. The `def` line itself counts.",
+          "starterCode": "def count_lines(fn_source):\n    # Your code here\n    pass\n",
+          "testCases": [
+            {
+              "id": "sh-5-c2-t1",
+              "description": "Counts 3 meaningful lines",
+              "appendCode": "src = 'def f():\\n    x = 1\\n    # comment\\n    return x\\n'\nprint(count_lines(src))",
+              "expectedOutput": "3",
+              "isHidden": false
+            }
+          ]
+        },
+        {
+          "id": "sh-5-c3",
+          "title": "Mutable Default Detector",
+          "description": "Implement `has_mutable_default(fn_source)` that returns `True` if the function source string contains a parameter default of `[]`, `{}`, or `set()`. Use `re.search`.",
+          "starterCode": "import re\n\ndef has_mutable_default(fn_source):\n    # Your code here\n    pass\n",
+          "testCases": [
+            {
+              "id": "sh-5-c3-t1",
+              "description": "Default [] is mutable",
+              "appendCode": "print(has_mutable_default('def f(x=[]):pass'))",
+              "expectedOutput": "True",
+              "isHidden": false
+            },
+            {
+              "id": "sh-5-c3-t2",
+              "description": "Default None is not mutable",
+              "appendCode": "print(has_mutable_default('def f(x=None):pass'))",
+              "expectedOutput": "False",
+              "isHidden": false
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "sh-6",
+      "title": "Debugging Strategies",
+      "order": 6,
+      "starterCode": "import logging\n\n# Set up logging\nlogging.basicConfig(level=logging.DEBUG, format='%(levelname)s: %(message)s')\n\n# Assertions as executable documentation\ndef compute_step(x, dt):\n    assert dt > 0, f\"dt must be positive, got {dt}\"\n    assert x >= 0, f\"x must be non-negative, got {x}\"\n    return x + dt * 2.0\n\n# Bisection debugging: narrow down where the bug is\ndef buggy_sum(lst):\n    # BUG: off-by-one — should be range(len(lst))\n    total = 0\n    for i in range(len(lst) - 1):  # <-- missing last element\n        total += lst[i]\n        logging.debug(f\"i={i}, lst[i]={lst[i]}, total={total}\")\n    return total\n\nprint(buggy_sum([1, 2, 3, 4]))  # prints 6, should be 10\n",
+      "content": "## Debugging Strategies\n\nDebugging is systematic science, not random guessing. A structured approach finds bugs faster and teaches you more about your code.\n\n### The debugging process\n\n1. **Reproduce** — get a minimal, reliable test case\n2. **Isolate** — narrow down to the exact line or function\n3. **Understand** — form a hypothesis about the cause\n4. **Fix** — make the smallest possible change\n5. **Verify** — confirm the fix and check for regressions\n\n### Bisection debugging\n\nLike binary search for bugs:\n- Add a print/assert at the midpoint of the suspect code\n- If it's wrong, the bug is before; if right, the bug is after\n- Repeat until isolated\n\n### assert as documentation\n\n```python\ndef integrate(f, a, b, n=1000):\n    assert callable(f), \"f must be callable\"\n    assert a < b, f\"need a < b, got {a} >= {b}\"\n    assert n > 0, f\"n must be positive, got {n}\"\n    ...\n```\n\nAssertions catch precondition violations immediately at the call site.\n\n### Common bug patterns\n\n**Off-by-one errors**:\n```python\n# Iterating one too few:\nfor i in range(len(lst) - 1):  # misses last element\n\n# Correct:\nfor i in range(len(lst)):\n    # or: for item in lst:\n```\n\n**Float precision**:\n```python\n0.1 + 0.2 == 0.3   # False!\nabs(0.1 + 0.2 - 0.3) < 1e-9  # True\n\nimport math\nmath.fsum([0.1] * 10)  # 1.0  (accurate)\n```\n\n**Mutable state leaking**:\n```python\n# Bug: default list is shared\ndef push(x, lst=[]):\n    lst.append(x)\n    return lst\n\npush(1)  # [1]\npush(2)  # [1, 2]  — not [2]!\n```\n\n### Reading tracebacks\n\nRead from the bottom up: the last line is the actual error; the frames above show how you got there. The innermost frame is usually where the fix belongs.\n",
+      "challenges": [
+        {
+          "id": "sh-6-c1",
+          "title": "Add Assertions",
+          "description": "Implement `bounded_index(lst, i)` that asserts `0 <= i < len(lst)` before returning `lst[i]`.\n\nIf the assertion fails, raise `AssertionError` with the message `'index out of bounds'`.",
+          "starterCode": "def bounded_index(lst, i):\n    # Your code here\n    pass\n",
+          "testCases": [
+            {
+              "id": "sh-6-c1-t1",
+              "description": "Valid index returns element",
+              "appendCode": "print(bounded_index([10, 20, 30], 1))",
+              "expectedOutput": "20",
+              "isHidden": false
+            },
+            {
+              "id": "sh-6-c1-t2",
+              "description": "Out-of-bounds index raises AssertionError",
+              "appendCode": "try:\n    bounded_index([1, 2, 3], 5)\nexcept AssertionError as e:\n    print(str(e))",
+              "expectedOutput": "index out of bounds",
+              "isHidden": true
+            }
+          ]
+        },
+        {
+          "id": "sh-6-c2",
+          "title": "Off-By-One Fix",
+          "description": "Implement `last_n(lst, n)` that returns the last `n` elements of `lst`.\n\nEdge cases:\n- If `n >= len(lst)`, return the entire list\n- If `n <= 0`, return `[]`",
+          "starterCode": "def last_n(lst, n):\n    # Your code here\n    pass\n",
+          "testCases": [
+            {
+              "id": "sh-6-c2-t1",
+              "description": "Last 3 elements",
+              "appendCode": "print(last_n([1, 2, 3, 4, 5], 3))",
+              "expectedOutput": "[3, 4, 5]",
+              "isHidden": false
+            },
+            {
+              "id": "sh-6-c2-t2",
+              "description": "n larger than list → full list",
+              "appendCode": "print(last_n([1, 2, 3], 10))",
+              "expectedOutput": "[1, 2, 3]",
+              "isHidden": false
+            },
+            {
+              "id": "sh-6-c2-t3",
+              "description": "n=0 → empty list",
+              "appendCode": "print(last_n([1, 2, 3], 0))",
+              "expectedOutput": "[]",
+              "isHidden": true
+            }
+          ]
+        },
+        {
+          "id": "sh-6-c3",
+          "title": "Float Precision",
+          "description": "Implement two functions:\n\n1. `almost_equal(a, b, tol=1e-9)` — returns `True` if `|a - b| < tol`\n2. `safe_sum(lst)` — returns the sum of `lst` using `math.fsum` for accurate floating-point summation",
+          "starterCode": "import math\n\ndef almost_equal(a, b, tol=1e-9):\n    # Your code here\n    pass\n\ndef safe_sum(lst):\n    # Your code here\n    pass\n",
+          "testCases": [
+            {
+              "id": "sh-6-c3-t1",
+              "description": "0.1 + 0.2 almost equals 0.3",
+              "appendCode": "print(almost_equal(0.1 + 0.2, 0.3))",
+              "expectedOutput": "True",
+              "isHidden": false
+            },
+            {
+              "id": "sh-6-c3-t2",
+              "description": "safe_sum of ten 0.1s is exactly 1.0",
+              "appendCode": "import math\nprint(safe_sum([0.1] * 10))",
+              "expectedOutput": "1.0",
+              "isHidden": false
+            }
+          ]
+        }
+      ]
     }
   ]
 }

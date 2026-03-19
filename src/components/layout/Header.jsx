@@ -13,9 +13,11 @@ function useBreadcrumbs() {
     if (lessonId) {
       parts.push({ label: `Lesson ${lessonId}`, to: null });
     }
-  } else if (segments[0] === 'challenge') {
-    parts.push({ label: 'Challenges', to: '/challenge/1' });
-    if (id) parts.push({ label: `Challenge ${id}`, to: null });
+  } else if (segments[0] === 'challenges') {
+    parts.push({ label: 'Challenges', to: '/challenges' });
+  } else if (segments[0] === 'challenge' && id) {
+    parts.push({ label: 'Challenges', to: '/challenges' });
+    parts.push({ label: `Challenge ${id}`, to: null });
   } else if (segments[0] === 'review') {
     parts.push({ label: 'SRS Review', to: null });
   } else if (segments[0] === 'settings') {
@@ -28,7 +30,7 @@ function useBreadcrumbs() {
 function LangBadge({ track }) {
   if (!track) return null;
   const isPython = track === 'python';
-  const isJulia = track === 'julia';
+  const isJulia  = track === 'julia';
   if (!isPython && !isJulia) return null;
 
   return (
@@ -51,7 +53,43 @@ function LangBadge({ track }) {
   );
 }
 
-export default function Header() {
+function ThemeToggle({ theme, onToggle }) {
+  const isDark = theme === 'dark';
+  return (
+    <button
+      onClick={onToggle}
+      title={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
+      style={{
+        display: 'inline-flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        width: 32,
+        height: 32,
+        borderRadius: 8,
+        border: '1px solid var(--border)',
+        backgroundColor: 'transparent',
+        color: 'var(--text-secondary)',
+        cursor: 'pointer',
+        fontSize: '1rem',
+        lineHeight: 1,
+        transition: 'background 0.15s, color 0.15s, border-color 0.15s',
+        flexShrink: 0,
+      }}
+      onMouseEnter={(e) => {
+        e.currentTarget.style.backgroundColor = 'var(--bg-elevated)';
+        e.currentTarget.style.color = 'var(--text-primary)';
+      }}
+      onMouseLeave={(e) => {
+        e.currentTarget.style.backgroundColor = 'transparent';
+        e.currentTarget.style.color = 'var(--text-secondary)';
+      }}
+    >
+      {isDark ? '☀️' : '🌙'}
+    </button>
+  );
+}
+
+export default function Header({ theme = 'light', onToggleTheme }) {
   const breadcrumbs = useBreadcrumbs();
   const { track } = useParams() || {};
 
@@ -66,13 +104,14 @@ export default function Header() {
         justifyContent: 'space-between',
         padding: '0 20px',
         flexShrink: 0,
+        gap: 12,
       }}
     >
-      <nav aria-label="Breadcrumb" style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+      <nav aria-label="Breadcrumb" style={{ display: 'flex', alignItems: 'center', gap: 6, minWidth: 0, flex: 1 }}>
         {breadcrumbs.map((crumb, i) => (
-          <span key={i} style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+          <span key={i} style={{ display: 'flex', alignItems: 'center', gap: 6, flexShrink: i === breadcrumbs.length - 1 ? 1 : 0, minWidth: 0 }}>
             {i > 0 && (
-              <span style={{ color: 'var(--text-muted)', fontSize: '0.75rem' }}>/</span>
+              <span style={{ color: 'var(--text-muted)', fontSize: '0.75rem', flexShrink: 0 }}>/</span>
             )}
             {crumb.to ? (
               <Link
@@ -83,6 +122,7 @@ export default function Header() {
                   fontSize: '0.82rem',
                   fontFamily: 'var(--font-body)',
                   transition: 'color 0.15s',
+                  whiteSpace: 'nowrap',
                 }}
                 onMouseEnter={(e) => (e.currentTarget.style.color = 'var(--text-primary)')}
                 onMouseLeave={(e) => (e.currentTarget.style.color = 'var(--text-secondary)')}
@@ -96,6 +136,9 @@ export default function Header() {
                   fontSize: '0.82rem',
                   fontFamily: 'var(--font-body)',
                   fontWeight: 500,
+                  overflow: 'hidden',
+                  textOverflow: 'ellipsis',
+                  whiteSpace: 'nowrap',
                 }}
               >
                 {crumb.label}
@@ -105,7 +148,10 @@ export default function Header() {
         ))}
       </nav>
 
-      <LangBadge track={track} />
+      <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexShrink: 0 }}>
+        <LangBadge track={track} />
+        <ThemeToggle theme={theme} onToggle={onToggleTheme} />
+      </div>
     </header>
   );
 }

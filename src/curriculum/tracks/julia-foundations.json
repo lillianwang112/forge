@@ -314,6 +314,311 @@
           ]
         }
       ]
+    },
+    {
+      "id": "ju-6",
+      "title": "Modules & the Standard Library",
+      "order": 6,
+      "starterCode": "using Statistics\nusing Random\nusing LinearAlgebra\n\n# Statistics\nv = [2.0, 4.0, 4.0, 4.0, 5.0, 5.0, 7.0, 9.0]\nprintln(\"mean   = \", mean(v))\nprintln(\"std    = \", round(std(v), digits=4))\nprintln(\"median = \", median(v))\n\n# Random with seed\nrng = MersenneTwister(42)\nw = shuffle(rng, [1, 2, 3, 4, 5])\nprintln(\"shuffled = \", w)\n\n# LinearAlgebra\nu = [3.0, 4.0]\nprintln(\"norm = \", norm(u))\n",
+      "content": "## Modules & the Standard Library\n\nJulia ships with a rich standard library. Unlike Python's `import`, Julia uses `using` to bring a module's exported names into scope.\n\n### `using` vs `import`\n\n```julia\nusing Statistics          # brings mean, std, median, etc. into scope\nimport Statistics         # requires Statistics.mean(...)\nusing Statistics: mean    # only brings mean into scope\n```\n\n### Statistics module\n\n```julia\nusing Statistics\n\nv = [1.0, 2.0, 3.0, 4.0, 5.0]\nmean(v)        # 3.0\nstd(v)         # 1.5811...\nmedian(v)      # 3.0\nvar(v)         # variance\ncor(v, w)      # Pearson correlation\n```\n\n### Random module\n\n```julia\nusing Random\n\nrand()                         # uniform [0,1)\nrandn()                        # standard normal\nrand(1:6)                      # random die roll\nshuffle([1,2,3,4,5])           # random permutation\n\n# Seeded for reproducibility\nrng = MersenneTwister(42)\nrand(rng, 1:100, 5)            # 5 reproducible random ints\n```\n\n### LinearAlgebra module\n\n```julia\nusing LinearAlgebra\n\nnorm(v)            # L2 norm\ndot(u, v)          # dot product\ncross(u, v)        # cross product\ndet(A)             # determinant\neig(A)             # eigendecomposition\nsvd(A)             # SVD\nA \\ b              # solve linear system\n```\n\n### Printf module\n\n```julia\nusing Printf\n\n@printf(\"pi = %.4f\\n\", pi)\ns = @sprintf(\"x = %d\", 42)    # returns a string\n```\n\n### Package management (Pkg)\n\nIn the REPL, press `]` to enter package mode:\n```\npkg> add DataFrames\npkg> activate .\npkg> status\n```\n\nOr programmatically:\n```julia\nusing Pkg\nPkg.add(\"DataFrames\")\n```\n",
+      "challenges": [
+        {
+          "id": "ju-6-c1",
+          "title": "Stats Summary",
+          "description": "Implement `stats_summary(v)` using the `Statistics` module that returns a NamedTuple `(mean=..., std=..., median=...)` for the input vector `v`.\n\nAssume `using Statistics` is already in scope.",
+          "starterCode": "using Statistics\n\nfunction stats_summary(v)\n    # Your code here\nend\n",
+          "testCases": [
+            {
+              "id": "ju-6-c1-t1",
+              "description": "Correct mean and std for [1..5]",
+              "appendCode": "using Statistics\ns = stats_summary([1.0, 2.0, 3.0, 4.0, 5.0])\nprintln(round(s.mean, digits=1), \" \", round(s.std, digits=4))",
+              "expectedOutput": "3.0 1.5811",
+              "isHidden": false
+            }
+          ]
+        },
+        {
+          "id": "ju-6-c2",
+          "title": "Seeded Sample",
+          "description": "Implement `seeded_sample_size(v, n, seed)` that shuffles `v` using `MersenneTwister(seed)` and takes the first `n` elements, returning the **length** of the result.\n\nAssume `using Random` is in scope.",
+          "starterCode": "using Random\n\nfunction seeded_sample_size(v, n, seed)\n    # Your code here\nend\n",
+          "testCases": [
+            {
+              "id": "ju-6-c2-t1",
+              "description": "Returns exactly n elements",
+              "appendCode": "using Random\nprintln(seeded_sample_size([10, 20, 30, 40, 50], 3, 42))",
+              "expectedOutput": "3",
+              "isHidden": false
+            }
+          ]
+        },
+        {
+          "id": "ju-6-c3",
+          "title": "Pearson Correlation",
+          "description": "Implement `pearson_cor(x, y)` that computes the Pearson correlation coefficient using `Statistics.mean` and `Statistics.std`.\n\n$$r = \\frac{\\text{mean}((x - \\bar{x}) \\odot (y - \\bar{y}))}{\\text{std}(x)\\,\\text{std}(y)}$$",
+          "starterCode": "using Statistics\n\nfunction pearson_cor(x, y)\n    # Your code here\nend\n",
+          "testCases": [
+            {
+              "id": "ju-6-c3-t1",
+              "description": "Perfectly correlated vectors → 1.0",
+              "appendCode": "using Statistics\nprintln(round(pearson_cor([1.0, 2.0, 3.0], [1.0, 2.0, 3.0]), digits=4))",
+              "expectedOutput": "1.0",
+              "isHidden": false
+            },
+            {
+              "id": "ju-6-c3-t2",
+              "description": "Perfectly anti-correlated → -1.0",
+              "appendCode": "using Statistics\nprintln(round(pearson_cor([1.0, 2.0, 3.0], [3.0, 2.0, 1.0]), digits=4))",
+              "expectedOutput": "-1.0",
+              "isHidden": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ju-7",
+      "title": "Type System Deep Dive",
+      "order": 7,
+      "starterCode": "# Union types and parametric structs\n\n# Union — value may be one of several types\nfunction describe_maybe(x::Union{Float64, Nothing})\n    if x === nothing\n        println(\"nothing\")\n    else\n        println(\"value: $x\")\n    end\nend\n\ndescribe_maybe(3.14)\ndescribe_maybe(nothing)\n\n# Parametric struct\nstruct Box{T}\n    contents::T\nend\n\nb_int  = Box(42)\nb_str  = Box(\"hello\")\nprintln(typeof(b_int))   # Box{Int64}\nprintln(typeof(b_str))   # Box{String}\n\n# where clause\nfunction double_it(x::T) where T <: Real\n    return x * 2\nend\nprintln(double_it(3.0))\nprintln(double_it(5))\n",
+      "content": "## Type System Deep Dive\n\nJulia's type system goes beyond simple structs. Parametric types, `Union`, and `where` clauses let you write generic, composable, and type-safe code.\n\n### Union types\n\n```julia\n# A value that may be Float64 or nothing\nfunction safe_sqrt(x::Float64)::Union{Float64, Nothing}\n    x >= 0 ? sqrt(x) : nothing\nend\n\nresult = safe_sqrt(-1.0)   # nothing\n```\n\n`Union{T, Nothing}` is Julia's equivalent of `Optional<T>` in other languages.\n\n### Parametric types\n\n```julia\nstruct Pair{A, B}\n    first::A\n    second::B\nend\n\np = Pair(1, \"hello\")   # Pair{Int64, String}\n```\n\n### `where` clauses\n\n```julia\n# Works for any Real subtype\nfunction clamp_to_unit(x::T) where T <: Real\n    return max(zero(T), min(one(T), x))\nend\n\n# Multiple constraints\nfunction dot(u::Vector{T}, v::Vector{T}) where T <: Number\n    sum(u .* v)\nend\n```\n\n### Type promotion\n\nJulia automatically promotes mixed-type arithmetic:\n\n```julia\npromote_type(Int64, Float64)   # Float64\npromote(1, 2.0)                # (1.0, 2.0)\n```\n\n### Abstract type hierarchies\n\n```julia\nabstract type Animal end\nabstract type Pet <: Animal end\n\nstruct Dog <: Pet; name::String end\nstruct Cat <: Pet; name::String end\n\nspeak(a::Dog) = println(\"Woof! I'm $(a.name)\")\nspeak(a::Cat) = println(\"Meow! I'm $(a.name)\")\n```\n",
+      "challenges": [
+        {
+          "id": "ju-7-c1",
+          "title": "Safe Division",
+          "description": "Implement `safe_div(a::T, b::T) where T <: Real` that returns `a / b`, or `Inf` if `b == 0`.",
+          "starterCode": "function safe_div(a::T, b::T) where T <: Real\n    # Your code here\nend\n",
+          "testCases": [
+            {
+              "id": "ju-7-c1-t1",
+              "description": "Normal division",
+              "appendCode": "println(safe_div(10.0, 2.0))",
+              "expectedOutput": "5.0",
+              "isHidden": false
+            },
+            {
+              "id": "ju-7-c1-t2",
+              "description": "Division by zero returns Inf",
+              "appendCode": "println(safe_div(1.0, 0.0))",
+              "expectedOutput": "Inf",
+              "isHidden": false
+            }
+          ]
+        },
+        {
+          "id": "ju-7-c2",
+          "title": "Maybe Type",
+          "description": "Implement `maybe_sqrt(x::Float64)` returning `Union{Float64, Nothing}`: `sqrt(x)` if `x >= 0`, otherwise `nothing`.",
+          "starterCode": "function maybe_sqrt(x::Float64)::Union{Float64, Nothing}\n    # Your code here\nend\n",
+          "testCases": [
+            {
+              "id": "ju-7-c2-t1",
+              "description": "sqrt of 4.0 is 2.0",
+              "appendCode": "println(maybe_sqrt(4.0))",
+              "expectedOutput": "2.0",
+              "isHidden": false
+            },
+            {
+              "id": "ju-7-c2-t2",
+              "description": "Negative input returns nothing",
+              "appendCode": "println(maybe_sqrt(-1.0))",
+              "expectedOutput": "nothing",
+              "isHidden": false
+            }
+          ]
+        },
+        {
+          "id": "ju-7-c3",
+          "title": "Type-Stable Max",
+          "description": "Implement `typed_max(v::Vector{T}) where T <: Real` that returns the maximum element using a loop (do not use the built-in `maximum`).",
+          "starterCode": "function typed_max(v::Vector{T}) where T <: Real\n    # Your code here\nend\n",
+          "testCases": [
+            {
+              "id": "ju-7-c3-t1",
+              "description": "Max of integer vector",
+              "appendCode": "println(typed_max([3, 1, 4, 1, 5, 9, 2, 6]))",
+              "expectedOutput": "9",
+              "isHidden": false
+            },
+            {
+              "id": "ju-7-c3-t2",
+              "description": "Max of float vector",
+              "appendCode": "println(typed_max([1.5, 0.5, 2.5]))",
+              "expectedOutput": "2.5",
+              "isHidden": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ju-8",
+      "title": "Performance & Profiling",
+      "order": 8,
+      "starterCode": "# Performance patterns in Julia\n\n# @time reports wall time and allocations\nfunction sum_loop(n)\n    s = 0.0\n    for i in 1:n\n        s += i\n    end\n    return s\nend\n\n@time sum_loop(1_000_000)\n\n# Pre-allocation avoids repeated heap allocation\nfunction fill_squares!(out, n)\n    for i in 1:n\n        out[i] = i^2\n    end\n    return out\nend\n\nbuf = Vector{Float64}(undef, 10)\nfill_squares!(buf, 10)\nprintln(buf)\n",
+      "content": "## Performance & Profiling\n\nJulia is designed to be fast, but a few patterns can inadvertently slow it down. Understanding type stability and memory allocation is key.\n\n### @time and @allocations\n\n```julia\n@time f(x)          # wall time + allocations\n@allocated f(x)     # bytes allocated\n@btime f(x)         # BenchmarkTools (more accurate)\n```\n\n### Type stability\n\nA function is **type-stable** if the return type is determined solely by the argument types. Instability forces the compiler to use `Any` boxes.\n\n```julia\n# Type-UNSTABLE — returns Int or Float64\nfunction bad(x)\n    x > 0 ? x : 0.0   # Int vs Float64\nend\n\n# Type-STABLE — always Float64\nfunction good(x::Float64)\n    x > 0 ? x : 0.0\nend\n```\n\nUse `@code_warntype f(x)` to detect type instabilities.\n\n### Avoid global variables\n\n```julia\nconst GRAVITY = 9.81   # const globals are type-stable\n```\n\n### Pre-allocation\n\nAvoid growing arrays with `push!` in hot loops:\n\n```julia\n# Slow — allocates on each push\nresult = []\nfor i in 1:n\n    push!(result, i^2)\nend\n\n# Fast — pre-allocate\nresult = Vector{Float64}(undef, n)\nfor i in 1:n\n    result[i] = i^2\nend\n```\n\n### Views vs copies\n\n```julia\nA = rand(1000, 1000)\ncol = A[:, 1]          # copy — allocates\ncol = @view A[:, 1]    # view — no allocation\n```\n\n### @inbounds\n\nSkip bounds checking in inner loops (use carefully):\n\n```julia\nfunction fast_sum(v)\n    s = 0.0\n    @inbounds for x in v\n        s += x\n    end\n    s\nend\n```\n",
+      "challenges": [
+        {
+          "id": "ju-8-c1",
+          "title": "Type-Stable Sum",
+          "description": "Implement `stable_sum(v::Vector{Float64})::Float64` that sums the vector using a local `Float64` accumulator and a loop.",
+          "starterCode": "function stable_sum(v::Vector{Float64})::Float64\n    # Your code here\nend\n",
+          "testCases": [
+            {
+              "id": "ju-8-c1-t1",
+              "description": "Sum of [1,2,3,4] = 10",
+              "appendCode": "println(stable_sum([1.0, 2.0, 3.0, 4.0]))",
+              "expectedOutput": "10.0",
+              "isHidden": false
+            }
+          ]
+        },
+        {
+          "id": "ju-8-c2",
+          "title": "In-place Scale",
+          "description": "Implement `scale!(v::Vector{Float64}, alpha::Float64)` that multiplies each element of `v` by `alpha` in-place and returns `v`.",
+          "starterCode": "function scale!(v::Vector{Float64}, alpha::Float64)\n    # Your code here\nend\n",
+          "testCases": [
+            {
+              "id": "ju-8-c2-t1",
+              "description": "Scale [1,2,3] by 2.0",
+              "appendCode": "v = [1.0, 2.0, 3.0]\nscale!(v, 2.0)\nprintln(v)",
+              "expectedOutput": "[2.0, 4.0, 6.0]",
+              "isHidden": false
+            }
+          ]
+        },
+        {
+          "id": "ju-8-c3",
+          "title": "Preallocated Cumsum",
+          "description": "Implement `cumsum_prealloc(v::Vector{Float64})` that returns the cumulative sum of `v` using a preallocated output vector (do not use `cumsum`).",
+          "starterCode": "function cumsum_prealloc(v::Vector{Float64})\n    # Your code here\nend\n",
+          "testCases": [
+            {
+              "id": "ju-8-c3-t1",
+              "description": "Cumulative sum of [1,2,3,4]",
+              "appendCode": "println(cumsum_prealloc([1.0, 2.0, 3.0, 4.0]))",
+              "expectedOutput": "[1.0, 3.0, 6.0, 10.0]",
+              "isHidden": false
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ju-9",
+      "title": "Functional Patterns",
+      "order": 9,
+      "starterCode": "# Functional programming in Julia\n\n# map / filter / reduce\nnums = [1, -2, 3, -4, 5]\npositives = filter(x -> x > 0, nums)\nsquared   = map(x -> x^2, positives)\ntotal     = reduce(+, squared)\nprintln(total)   # 1^2 + 3^2 + 5^2 = 35\n\n# Pipe operator |>\n result = nums |> (v -> filter(x -> x > 0, v)) |> (v -> map(x -> x^2, v)) |> sum\nprintln(result)\n\n# Closure — captures outer variable\nfunction make_adder(n)\n    return x -> x + n\nend\nadd5 = make_adder(5)\nprintln(add5(10))   # 15\n",
+      "content": "## Functional Patterns\n\nJulia embraces functional programming: functions are first-class values, closures capture their environment, and the pipe operator `|>` enables clean left-to-right data flow.\n\n### map / filter / reduce\n\n```julia\nv = [1, 2, 3, 4, 5]\n\nmap(x -> x^2, v)                    # [1, 4, 9, 16, 25]\nfilter(x -> x % 2 == 0, v)          # [2, 4]\nreduce(+, v)                        # 15\nmapreduce(x -> x^2, +, v)          # sum of squares = 55\n```\n\n### Pipe operator `|>`\n\n```julia\nv |> sum                            # sum(v)\nv |> (x -> filter(iseven, x)) |> sum  # sum of evens\n```\n\n### do-block syntax\n\n```julia\nmap(v) do x\n    x^2 + 1\nend\n```\n\nEquivalent to `map(x -> x^2 + 1, v)` but more readable for multi-line bodies.\n\n### Closures\n\nA closure captures variables from its enclosing scope:\n\n```julia\nfunction make_multiplier(n)\n    return x -> x * n    # captures n\nend\n\ndouble = make_multiplier(2)\ntriple = make_multiplier(3)\nprintln(double(5))   # 10\nprintln(triple(5))   # 15\n```\n\n### Partial application\n\nJulia doesn't have built-in partial application, but closures achieve the same:\n\n```julia\nadd(a, b) = a + b\nadd5 = x -> add(5, x)   # partial application\nprintln(add5(10))        # 15\n```\n\n### Higher-order functions\n\n```julia\nfunction apply_twice(f, x)\n    f(f(x))\nend\n\napply_twice(x -> x * 2, 3)   # 12\n```\n",
+      "challenges": [
+        {
+          "id": "ju-9-c1",
+          "title": "Compose Pipeline",
+          "description": "Implement `compose_pipe(v)` that takes a vector and:\n1. Filters to keep only positive values\n2. Maps each to its square\n3. Returns the sum\n\nUse `filter`, `map`, and `sum` (or the `|>` pipe operator).",
+          "starterCode": "function compose_pipe(v)\n    # Your code here\nend\n",
+          "testCases": [
+            {
+              "id": "ju-9-c1-t1",
+              "description": "sum of squares of positives: 2^2 + 4^2 = 20",
+              "appendCode": "println(compose_pipe([-1.0, 2.0, -3.0, 4.0]))",
+              "expectedOutput": "20.0",
+              "isHidden": false
+            }
+          ]
+        },
+        {
+          "id": "ju-9-c2",
+          "title": "Make Counter",
+          "description": "Implement `make_counter()` that returns a closure. Each time the closure is called (with no arguments), it returns the next integer starting from 1.",
+          "starterCode": "function make_counter()\n    # Your code here\nend\n",
+          "testCases": [
+            {
+              "id": "ju-9-c2-t1",
+              "description": "Counter increments each call",
+              "appendCode": "c = make_counter()\nprintln(c(), c(), c())",
+              "expectedOutput": "1 2 3",
+              "isHidden": false
+            }
+          ]
+        },
+        {
+          "id": "ju-9-c3",
+          "title": "Group By Key",
+          "description": "Implement `group_by(v, key_fn)` that returns a `Dict` where each key is `key_fn(x)` for some element `x`, and the corresponding value is an array of all elements in `v` that map to that key.",
+          "starterCode": "function group_by(v, key_fn)\n    # Your code here\nend\n",
+          "testCases": [
+            {
+              "id": "ju-9-c3-t1",
+              "description": "Group integers by even/odd",
+              "appendCode": "result = group_by([1, 2, 3, 4, 5, 6], x -> x % 2 == 0 ? \"even\" : \"odd\")\nprintln(sort(result[\"even\"]), sort(result[\"odd\"]))",
+              "expectedOutput": "[2, 4, 6][1, 3, 5]",
+              "isHidden": false
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ju-10",
+      "title": "Linear Algebra in Julia",
+      "order": 10,
+      "starterCode": "using LinearAlgebra\n\n# Solve Ax = b using the \\ operator\nA = [2.0 1.0; 1.0 3.0]\nb = [5.0; 10.0]\nx = A \\ b\nprintln(\"x = \", round.(x, digits=4))\n\n# QR decomposition\nF = qr(A)\nprintln(\"R diagonal: \", round.(diag(F.R), digits=4))\n\n# Eigenvalues\nprintln(\"eigenvalues: \", round.(eigvals(A), digits=4))\n\n# SVD\nU, s, V = svd(A)\nprintln(\"singular values: \", round.(s, digits=4))\n",
+      "content": "## Linear Algebra in Julia\n\n`LinearAlgebra` is Julia's standard library for matrix factorizations, decompositions, and solvers — wrapping LAPACK/BLAS routines with idiomatic Julia syntax.\n\n### Solving Ax = b\n\nThe `\\` operator dispatches to the most appropriate solver:\n\n```julia\nusing LinearAlgebra\n\nA = [2.0 1.0; 1.0 3.0]\nb = [5.0; 10.0]\nx = A \\ b    # LU factorization → [1.0, 3.0]\n```\n\nFor overdetermined systems (least squares), `\\` uses QR automatically.\n\n### QR decomposition\n\n```julia\nF = qr(A)\nF.Q    # orthogonal matrix\nF.R    # upper triangular matrix\n# A = F.Q * F.R\n```\n\nUseful for numerically stable least-squares solving.\n\n### Eigendecomposition\n\n```julia\nvals = eigvals(A)       # eigenvalues only\nvals, vecs = eigen(A)   # eigenvalues + eigenvectors\n```\n\nFor symmetric/Hermitian matrices, use `Symmetric(A)` for guaranteed real eigenvalues.\n\n### SVD\n\n```julia\nU, s, V = svd(A)\n# A ≈ U * Diagonal(s) * V'\ncond_number = s[1] / s[end]   # condition number\n```\n\n### Cholesky\n\nFor symmetric positive-definite matrices:\n\n```julia\nC = cholesky(Symmetric(A))\nC.L    # lower triangular factor\n```\n\n### Matrix norms\n\n```julia\nnorm(A)           # Frobenius norm\nnorm(A, 1)        # 1-norm (max column sum)\nnorm(A, Inf)      # ∞-norm (max row sum)\nnorm(A, 2)        # 2-norm = largest singular value\n```\n",
+      "challenges": [
+        {
+          "id": "ju-10-c1",
+          "title": "QR Solve",
+          "description": "Implement `qr_solve(A, b)` that solves `Ax = b` using the `\\` operator (which uses QR for rectangular systems and LU for square ones).\n\nAssume `using LinearAlgebra` is in scope.",
+          "starterCode": "using LinearAlgebra\n\nfunction qr_solve(A, b)\n    # Your code here\nend\n",
+          "testCases": [
+            {
+              "id": "ju-10-c1-t1",
+              "description": "Solve 2×2 system",
+              "appendCode": "using LinearAlgebra\nA = [2.0 1.0; 1.0 3.0]\nb = [5.0; 10.0]\nx = qr_solve(A, b)\nprintln(round(x[1], digits=1), \" \", round(x[2], digits=1))",
+              "expectedOutput": "1.0 3.0",
+              "isHidden": false
+            }
+          ]
+        },
+        {
+          "id": "ju-10-c2",
+          "title": "Dominant Eigenvalue",
+          "description": "Implement `dominant_eigenval(A)` that returns the eigenvalue of `A` with the largest absolute value.\n\nAssume `using LinearAlgebra` is in scope.",
+          "starterCode": "using LinearAlgebra\n\nfunction dominant_eigenval(A)\n    # Your code here\nend\n",
+          "testCases": [
+            {
+              "id": "ju-10-c2-t1",
+              "description": "Dominant eigenvalue of test matrix is 5.0",
+              "appendCode": "using LinearAlgebra\nA = [4.0 1.0; 2.0 3.0]\nprintln(round(dominant_eigenval(A), digits=1))",
+              "expectedOutput": "5.0",
+              "isHidden": false
+            }
+          ]
+        },
+        {
+          "id": "ju-10-c3",
+          "title": "Matrix Condition Number",
+          "description": "Implement `cond_num(A)` that computes the condition number of `A` as the ratio of the largest to smallest singular value.\n\nAssume `using LinearAlgebra` is in scope.",
+          "starterCode": "using LinearAlgebra\n\nfunction cond_num(A)\n    # Your code here\nend\n",
+          "testCases": [
+            {
+              "id": "ju-10-c3-t1",
+              "description": "Diagonal matrix [1,2] has condition number 2",
+              "appendCode": "using LinearAlgebra\nA = [1.0 0.0; 0.0 2.0]\nprintln(round(cond_num(A), digits=1))",
+              "expectedOutput": "2.0",
+              "isHidden": false
+            },
+            {
+              "id": "ju-10-c3-t2",
+              "description": "Near-singular matrix has very large condition number",
+              "appendCode": "using LinearAlgebra\nprintln(cond_num([1.0 1.0; 1.0 1.0+1e-10]) > 1e9)",
+              "expectedOutput": "true",
+              "isHidden": true
+            }
+          ]
+        }
+      ]
     }
   ]
 }
