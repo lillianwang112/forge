@@ -36,7 +36,7 @@ export default function EditorToolbar({
 
   // Runtime badge changes based on selected language
   const runtimeBadge = language === 'julia'
-    ? { icon: '☁️', label: 'Runs on Judge0', color: 'rgba(163,113,247,0.15)', border: 'rgba(163,113,247,0.3)', text: 'var(--accent-purple)' }
+    ? { icon: '☁️', label: 'Runs on Wandbox', color: 'rgba(163,113,247,0.15)', border: 'rgba(163,113,247,0.3)', text: 'var(--accent-purple)' }
     : { icon: '🖥️', label: 'Runs in browser', color: 'rgba(88,166,255,0.1)',  border: 'rgba(88,166,255,0.25)', text: 'var(--accent-blue)' };
 
   const btnBase = {

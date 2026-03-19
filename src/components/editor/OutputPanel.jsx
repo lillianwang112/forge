@@ -223,10 +223,10 @@ export default function OutputPanel({
           <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 10, color: 'var(--text-muted)', fontStyle: 'italic' }}>
               <PulseDot color="var(--accent-purple)" />
-              <span>Compiling Julia code… (JIT compilation takes a few seconds)</span>
+              <span>Running Julia via Wandbox… (first run takes a few seconds)</span>
             </div>
             <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', paddingLeft: 17 }}>
-              Tip: subsequent runs are faster once the JIT cache is warm.
+              Tip: Julia 1.10.5 on Wandbox — free cloud execution, no setup needed.
             </div>
           </div>
         )}

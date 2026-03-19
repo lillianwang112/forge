@@ -22,20 +22,21 @@ print(f"Mean: {np.mean(np.sin(x)):.6f}")
 print(f"Max sin(x): {np.max(np.sin(x)):.6f}")
 `,
   julia: `# Welcome to Forge! 🔨
-# Julia runs via Judge0 CE (cloud-based)
+# Julia runs via Wandbox (cloud-based, Julia 1.10.5)
 
 println("Hello from Julia!")
 
 # Multiple dispatch example
-greet(name::String) = println("Hello, \$name!")
-greet(n::Int) = println("Hello, person #\$n!")
+greet(name::String) = println("Hello, \$(name)!")
+greet(n::Int)        = println("Hello, person #\$(n)!")
 
 greet("Forge")
 greet(42)
 
 # Array operations
-x = range(0, 2π, length=100) |> collect
-println("\\nGenerated \$(length(x)) points")
+x = range(0, 2*pi, length=100) |> collect
+println("")
+println("Generated \$(length(x)) points")
 println("Max sin(x): \$(round(maximum(sin.(x)), digits=6))")
 `,
 };
