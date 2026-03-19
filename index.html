@@ -17,6 +17,18 @@
   </head>
   <body>
     <div id="root"></div>
+    <!-- SPA routing: restore path after 404.html redirect -->
+    <script>
+      (function () {
+        var redirect = sessionStorage.getItem('spa-redirect');
+        if (redirect) {
+          sessionStorage.removeItem('spa-redirect');
+          var base = '/forge';
+          var path = redirect.startsWith(base) ? redirect.slice(base.length) : redirect;
+          window.history.replaceState(null, '', base + (path || '/'));
+        }
+      })();
+    </script>
     <script type="module" src="/src/main.jsx"></script>
   </body>
 </html>

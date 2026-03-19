@@ -1,0 +1,147 @@
+/* ============================================================
+   Forge — animation keyframes and utility classes
+   ============================================================ */
+
+/* ── Keyframes ─────────────────────────────────────────────── */
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fadeInDown {
+  from { opacity: 0; transform: translateY(-8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fadeInLeft {
+  from { opacity: 0; transform: translateX(-12px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes slideInRight {
+  from { opacity: 0; transform: translateX(32px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes slideOutRight {
+  from { opacity: 1; transform: translateX(0); }
+  to   { opacity: 0; transform: translateX(32px); }
+}
+
+@keyframes scaleIn {
+  from { opacity: 0; transform: scale(0.92); }
+  to   { opacity: 1; transform: scale(1); }
+}
+
+@keyframes backdropIn {
+  from { opacity: 0; backdrop-filter: blur(0px); }
+  to   { opacity: 1; backdrop-filter: blur(8px); }
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.3; }
+}
+
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0; }
+}
+
+@keyframes progressFill {
+  from { width: 0%; }
+  to   { width: var(--target-width, 100%); }
+}
+
+@keyframes shimmer {
+  from { background-position: -200% 0; }
+  to   { background-position: 200% 0; }
+}
+
+/* ── Page transition ────────────────────────────────────────── */
+
+.page-enter {
+  animation: fadeIn 0.2s ease forwards;
+}
+
+/* ── Toast animations ───────────────────────────────────────── */
+
+.toast-enter {
+  animation: slideInRight 0.25s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+.toast-exit {
+  animation: slideOutRight 0.2s ease forwards;
+}
+
+/* ── Modal animations ───────────────────────────────────────── */
+
+.modal-backdrop {
+  animation: backdropIn 0.2s ease forwards;
+}
+
+.modal-content {
+  animation: scaleIn 0.22s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+/* ── Card hover scale ───────────────────────────────────────── */
+
+.card-hover {
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.card-hover:hover {
+  transform: scale(1.02);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+}
+
+/* ── Sidebar item entrance stagger ─────────────────────────── */
+
+.sidebar-item-1 { animation: fadeInLeft 0.2s ease 0.02s both; }
+.sidebar-item-2 { animation: fadeInLeft 0.2s ease 0.06s both; }
+.sidebar-item-3 { animation: fadeInLeft 0.2s ease 0.10s both; }
+.sidebar-item-4 { animation: fadeInLeft 0.2s ease 0.14s both; }
+.sidebar-item-5 { animation: fadeInLeft 0.2s ease 0.18s both; }
+.sidebar-item-6 { animation: fadeInLeft 0.2s ease 0.22s both; }
+
+/* ── Progress bar smooth fill ───────────────────────────────── */
+
+.progress-bar-fill {
+  transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* ── Skeleton loading shimmer ───────────────────────────────── */
+
+.skeleton {
+  background: linear-gradient(
+    90deg,
+    var(--bg-elevated) 25%,
+    var(--border) 37%,
+    var(--bg-elevated) 63%
+  );
+  background-size: 400% 100%;
+  animation: shimmer 1.4s ease infinite;
+  border-radius: 4px;
+}
+
+/* ── Prefers reduced motion override ────────────────────────── */
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

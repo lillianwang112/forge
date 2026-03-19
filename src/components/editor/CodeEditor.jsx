@@ -1,4 +1,4 @@
-import { useRef, useCallback } from 'react';
+import { useRef, useCallback, useEffect, useState } from 'react';
 import MonacoEditor, { loader } from '@monaco-editor/react';
 
 // Configure Monaco to load from CDN
@@ -40,9 +40,29 @@ const FORGE_THEME = {
   },
 };
 
+function getStoredFontSize() {
+  const raw = localStorage.getItem('forge-font-size');
+  const n = parseInt(raw, 10);
+  return Number.isFinite(n) && n >= 12 && n <= 20 ? n : 14;
+}
+
 export default function CodeEditor({ language = 'python', value, onChange, onRun }) {
   const editorRef = useRef(null);
   const monacoRef = useRef(null);
+  const [fontSize, setFontSize] = useState(getStoredFontSize);
+
+  // Listen for live font-size changes from SettingsPage
+  useEffect(() => {
+    const handler = (e) => {
+      if (e.detail?.fontSize) {
+        const n = Number(e.detail.fontSize);
+        setFontSize(n);
+        editorRef.current?.updateOptions({ fontSize: n });
+      }
+    };
+    window.addEventListener('forge-settings', handler);
+    return () => window.removeEventListener('forge-settings', handler);
+  }, []);
 
   const handleBeforeMount = useCallback((monaco) => {
     monacoRef.current = monaco;
@@ -53,6 +73,9 @@ export default function CodeEditor({ language = 'python', value, onChange, onRun
     (editor, monaco) => {
       editorRef.current = editor;
 
+      // Apply stored font size
+      editor.updateOptions({ fontSize: getStoredFontSize() });
+
       // Cmd+Enter / Ctrl+Enter → run
       editor.addCommand(
         monaco.KeyMod.CtrlCmd | monaco.KeyCode.Enter,
@@ -61,7 +84,6 @@ export default function CodeEditor({ language = 'python', value, onChange, onRun
         }
       );
 
-      // Focus editor
       editor.focus();
     },
     [onRun]
@@ -80,7 +102,7 @@ export default function CodeEditor({ language = 'python', value, onChange, onRun
       onMount={handleMount}
       options={{
         fontFamily: "'JetBrains Mono', 'Fira Code', monospace",
-        fontSize: 14,
+        fontSize,
         lineHeight: 22,
         minimap: { enabled: false },
         lineNumbers: 'on',
