@@ -4,8 +4,11 @@ import SplitPane from '../components/editor/SplitPane';
 import CodeEditor from '../components/editor/CodeEditor';
 import EditorToolbar from '../components/editor/EditorToolbar';
 import RightPanel from '../components/editor/RightPanel';
+import TrackSelector from '../components/curriculum/TrackSelector';
 import { useCodeExecution } from '../hooks/useCodeExecution';
 import { useAIFeedback } from '../hooks/useAIFeedback';
+import { useAllProgress } from '../hooks/useProgress';
+import { getAllTracks, getTrack } from '../curriculum/index';
 
 // ---------------------------------------------------------------------------
 // Starter code per language
@@ -42,45 +45,6 @@ println("Max sin(x): \$(round(maximum(sin.(x)), digits=6))")
 `,
 };
 
-// ---------------------------------------------------------------------------
-// Track cards data
-// ---------------------------------------------------------------------------
-
-const TRACKS = [
-  {
-    id: 'python',
-    name: 'Python Track',
-    emoji: '🐍',
-    color: 'var(--accent-green)',
-    bgColor: 'rgba(63,185,80,0.07)',
-    borderColor: 'rgba(63,185,80,0.2)',
-    description: 'NumPy, SciPy, data pipelines, numerical methods and scientific computing.',
-    lessons: 24,
-    completed: 0,
-  },
-  {
-    id: 'julia',
-    name: 'Julia Track',
-    emoji: '💜',
-    color: 'var(--accent-purple)',
-    bgColor: 'rgba(163,113,247,0.07)',
-    borderColor: 'rgba(163,113,247,0.2)',
-    description: 'High-performance computing, differential equations, and numerical analysis.',
-    lessons: 18,
-    completed: 0,
-  },
-  {
-    id: 'shared',
-    name: 'Shared Skills',
-    emoji: '⚡',
-    color: 'var(--accent-blue)',
-    bgColor: 'rgba(88,166,255,0.07)',
-    borderColor: 'rgba(88,166,255,0.2)',
-    description: 'Math foundations, algorithm design, data structures, and ML essentials.',
-    lessons: 12,
-    completed: 0,
-  },
-];
 
 // ---------------------------------------------------------------------------
 // Component
@@ -97,6 +61,23 @@ export default function Dashboard() {
   // AI feedback engine
   const { requestReview, feedback, isStreaming, error: aiError, clearFeedback } =
     useAIFeedback();
+
+  const { summary } = useAllProgress();
+
+  // Compute "continue" card: find the first track with incomplete lessons
+  const continueCard = (() => {
+    for (const track of getAllTracks()) {
+      const completed = summary[track.id] ?? 0;
+      if (completed < track.lessons.length) {
+        // Find next incomplete lesson
+        const nextLesson = track.lessons
+          .sort((a, b) => a.order - b.order)
+          .find((_, i) => i >= completed);
+        if (nextLesson) return { track, lesson: nextLesson };
+      }
+    }
+    return null;
+  })();
 
   const handleLanguageChange = (lang) => {
     setLanguage(lang);
@@ -179,64 +160,45 @@ export default function Dashboard() {
         />
       </div>
 
-      {/* ── Track cards ──────────────────────────────────────────────── */}
+      {/* ── Continue card + Track selector ───────────────────────────── */}
       <div
         style={{
-          padding: '16px 20px',
+          padding: '14px 20px',
           borderTop: '1px solid var(--border)',
           backgroundColor: 'var(--bg-secondary)',
           flexShrink: 0,
         }}
       >
-        <p style={{ fontSize: '0.72rem', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.08em', fontFamily: 'var(--font-mono)', marginBottom: 10 }}>
-          Learning Tracks
-        </p>
-        <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
-          {TRACKS.map((track) => (
-            <Link
-              key={track.id}
-              to={`/learn/${track.id}`}
-              style={{
-                flex: '1 1 180px',
-                padding: '12px 14px',
-                borderRadius: 8,
-                backgroundColor: track.bgColor,
-                border: `1px solid ${track.borderColor}`,
-                textDecoration: 'none',
-                transition: 'border-color 0.15s, background 0.15s',
-                display: 'flex',
-                flexDirection: 'column',
-                gap: 4,
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.borderColor = track.color;
-                e.currentTarget.style.backgroundColor = track.bgColor.replace('0.07', '0.12');
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.borderColor = track.borderColor;
-                e.currentTarget.style.backgroundColor = track.bgColor;
-              }}
-            >
-              <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 2 }}>
-                <span style={{ fontSize: '1rem' }}>{track.emoji}</span>
-                <span style={{ fontWeight: 600, fontSize: '0.85rem', color: track.color, fontFamily: 'var(--font-body)' }}>
-                  {track.name}
-                </span>
+        {continueCard && (
+          <Link
+            to={`/learn/${continueCard.track.id}/${continueCard.lesson.id}`}
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: 10,
+              padding: '8px 12px',
+              borderRadius: 8,
+              backgroundColor: continueCard.track.bgColor,
+              border: `1px solid ${continueCard.track.borderColor}`,
+              textDecoration: 'none',
+              marginBottom: 12,
+              transition: 'border-color 0.15s',
+            }}
+            onMouseEnter={(e) => (e.currentTarget.style.borderColor = continueCard.track.color)}
+            onMouseLeave={(e) => (e.currentTarget.style.borderColor = continueCard.track.borderColor)}
+          >
+            <span style={{ fontSize: '0.9rem' }}>▶</span>
+            <div>
+              <div style={{ fontSize: '0.78rem', fontWeight: 600, color: continueCard.track.color, fontFamily: 'var(--font-body)' }}>
+                Continue: {continueCard.lesson.title}
               </div>
-              <p style={{ fontSize: '0.72rem', color: 'var(--text-secondary)', lineHeight: 1.5, margin: 0, fontFamily: 'var(--font-body)' }}>
-                {track.description}
-              </p>
-              <div style={{ marginTop: 8 }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.62rem', color: 'var(--text-muted)', fontFamily: 'var(--font-mono)', marginBottom: 4 }}>
-                  <span>{track.completed} / {track.lessons} lessons</span>
-                </div>
-                <div style={{ height: 2, backgroundColor: 'var(--border)', borderRadius: 1, overflow: 'hidden' }}>
-                  <div style={{ height: '100%', width: `${(track.completed / track.lessons) * 100}%`, backgroundColor: track.color, borderRadius: 1 }} />
-                </div>
+              <div style={{ fontSize: '0.66rem', color: 'var(--text-muted)', fontFamily: 'var(--font-mono)' }}>
+                {continueCard.track.name}
               </div>
-            </Link>
-          ))}
-        </div>
+            </div>
+          </Link>
+        )}
+        <TrackSelector />
       </div>
     </div>
   );

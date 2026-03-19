@@ -1,0 +1,319 @@
+{
+  "id": "julia",
+  "name": "Julia Track",
+  "emoji": "💜",
+  "language": "julia",
+  "color": "var(--accent-purple)",
+  "bgColor": "rgba(163,113,247,0.07)",
+  "borderColor": "rgba(163,113,247,0.2)",
+  "description": "High-performance computing, differential equations, and numerical analysis.",
+  "lessons": [
+    {
+      "id": "ju-1",
+      "title": "Julia from Scratch",
+      "order": 1,
+      "starterCode": "# Welcome to Julia!\n\n# Variables — types inferred, or annotated\nx = 3.14\nname = \"ZERO Lab\"\ncount::Int = 42\n\nprintln(\"π ≈ $x\")\nprintln(\"Hello from $(name)!\")\n\n# Julia uses 1-based indexing\narr = [10, 20, 30, 40]\nprintln(arr[1])      # 10\nprintln(arr[end])    # 40\n\n# Range and for loop\nfor i in 1:3\n    println(\"i = $i\")\nend\n",
+      "content": "## Julia from Scratch\n\nJulia is designed for numerical computing: it has Python-like syntax but compiles JIT to LLVM machine code, reaching C-level speed without explicit type annotations.\n\n### Key differences from Python\n\n- **1-based indexing** — `arr[1]` is the first element\n- **Unicode identifiers** — you can write `α`, `β`, `∇f`\n- **Types are optional but powerful** — `x::Float64` is valid\n- **`end` closes blocks** (no curly braces)\n\n```julia\n# Python:     x = 3.14\n# Julia:      x = 3.14        (same!)\n# Julia typed: x::Float64 = 3.14\n```\n\n### Printing\n\n```julia\nprintln(\"Hello\")                # with newline\nprint(\"no newline\")             # no newline\nprintln(\"x = $x\")              # string interpolation\nprintln(\"x = $(round(x, 2))\")  # expression inside $()\n```\n\n### Basic math\n\n```julia\n2^10        # 1024  (** in Python)\ndiv(7, 2)   # 3     (integer division)\n7 % 2       # 1     (modulo)\nsqrt(16)    # 4.0\nabs(-5)     # 5\n```\n\n### Arrays (1-indexed!)\n\n```julia\nv = [1, 2, 3, 4, 5]\nv[1]        # 1   (first element)\nv[end]      # 5   (last element)\nv[2:4]      # [2, 3, 4]\npush!(v, 6) # append in-place\nlength(v)   # 6\n```\n\n### Why Julia for scientific computing?\n\nJulia was created to solve the **two-language problem**: prototype in Python, rewrite in C for speed. With Julia you write readable, high-level code that is *already* fast. The `DifferentialEquations.jl`, `Optimization.jl`, and `Flux.jl` ecosystems are world-class.\n",
+      "challenges": [
+        {
+          "id": "ju-1-c1",
+          "title": "Circle Area",
+          "description": "Implement `circle_area(r)` that returns the area of a circle with radius `r`.\n\n$$A = \\pi r^2$$\n\nUse Julia's built-in `pi` constant.",
+          "starterCode": "function circle_area(r)\n    # Your code here\nend\n",
+          "testCases": [
+            {
+              "id": "ju-1-c1-t1",
+              "description": "r = 1 → π",
+              "appendCode": "println(round(circle_area(1), digits=6))",
+              "expectedOutput": "3.141593",
+              "isHidden": false
+            },
+            {
+              "id": "ju-1-c1-t2",
+              "description": "r = 0 → 0",
+              "appendCode": "println(circle_area(0))",
+              "expectedOutput": "0",
+              "isHidden": false
+            },
+            {
+              "id": "ju-1-c1-t3",
+              "description": "r = 5 (hidden)",
+              "appendCode": "println(round(circle_area(5), digits=4))",
+              "expectedOutput": "78.5398",
+              "isHidden": true
+            }
+          ]
+        },
+        {
+          "id": "ju-1-c2",
+          "title": "Factorial",
+          "description": "Implement `factorial_r(n)` recursively.\n\n$$n! = n \\times (n-1)!\\quad,\\quad 0! = 1$$\n\n(Julia has a built-in `factorial` — implement your own.)",
+          "starterCode": "function factorial_r(n)\n    # Your code here\nend\n",
+          "testCases": [
+            {
+              "id": "ju-1-c2-t1",
+              "description": "5! = 120",
+              "appendCode": "println(factorial_r(5))",
+              "expectedOutput": "120",
+              "isHidden": false
+            },
+            {
+              "id": "ju-1-c2-t2",
+              "description": "0! = 1",
+              "appendCode": "println(factorial_r(0))",
+              "expectedOutput": "1",
+              "isHidden": false
+            },
+            {
+              "id": "ju-1-c2-t3",
+              "description": "10! = 3628800",
+              "appendCode": "println(factorial_r(10))",
+              "expectedOutput": "3628800",
+              "isHidden": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ju-2",
+      "title": "Arrays & Broadcasting",
+      "order": 2,
+      "starterCode": "# Julia arrays and broadcasting\nusing LinearAlgebra\n\n# Vector (1D array)\nv = [1.0, 2.0, 3.0, 4.0]\nprintln(\"v     = \", v)\nprintln(\"sum   = \", sum(v))\nprintln(\"mean  = \", sum(v)/length(v))\n\n# Broadcasting with the dot operator\nprintln(\"v.^2  = \", v.^2)\nprintln(\"√v    = \", sqrt.(v))\n\n# Matrix\nA = [1 2; 3 4]\nprintln(\"A     = \", A)\nprintln(\"det   = \", det(A))\n",
+      "content": "## Arrays & Broadcasting\n\nJulia arrays are column-major (like Fortran/MATLAB), and the **dot operator** (`.`) is the key to vectorised code.\n\n### Creating arrays\n\n```julia\nv = [1.0, 2.0, 3.0]        # column vector\nr = 1:5                     # range (lazy)\nw = collect(1:5)            # [1, 2, 3, 4, 5]\nz = zeros(4)                # [0. 0. 0. 0.]\nA = ones(3, 3)              # 3×3 matrix of ones\n```\n\n### Broadcasting with `.`\n\nAny function or operator can be broadcast element-wise by adding `.`:\n\n```julia\nv = [4.0, 9.0, 16.0]\nsqrt.(v)       # [2.0, 3.0, 4.0]\nv .^ 0.5       # same thing\nsin.(v)        # element-wise sin\nlog.(v) .+ 1   # element-wise log then +1\n```\n\n### Difference from Python/NumPy\n\n```julia\n# In Python: A * B is element-wise (NumPy)\n# In Julia:  A * B is matrix multiplication\n#            A .* B is element-wise\n\nA = [1 2; 3 4]\nB = [5 6; 7 8]\nprintln(A * B)    # matrix multiply\nprintln(A .* B)   # element-wise\n```\n\n### Linear algebra\n\n```julia\nusing LinearAlgebra\n\nnorm(v)          # L2 norm\ndot(v, w)        # dot product\ncross(v, w)      # cross product (3D)\ndet(A)           # determinant\neigvals(A)       # eigenvalues\n```\n\n### Comprehensions\n\n```julia\nsquares = [x^2 for x in 1:5]     # [1, 4, 9, 16, 25]\nevens   = [x for x in 1:10 if x % 2 == 0]\n```\n",
+      "challenges": [
+        {
+          "id": "ju-2-c1",
+          "title": "Dot Product",
+          "description": "Implement `dot_product(u, v)` that computes the dot product of two vectors **without** using `LinearAlgebra.dot` or the `·` operator.\n\n$$u \\cdot v = \\sum_i u_i v_i$$",
+          "starterCode": "function dot_product(u, v)\n    # Your code here\nend\n",
+          "testCases": [
+            {
+              "id": "ju-2-c1-t1",
+              "description": "[1,2,3] · [4,5,6] = 32",
+              "appendCode": "println(dot_product([1.0, 2.0, 3.0], [4.0, 5.0, 6.0]))",
+              "expectedOutput": "32.0",
+              "isHidden": false
+            },
+            {
+              "id": "ju-2-c1-t2",
+              "description": "Orthogonal vectors → 0",
+              "appendCode": "println(dot_product([1.0, 0.0], [0.0, 1.0]))",
+              "expectedOutput": "0.0",
+              "isHidden": false
+            }
+          ]
+        },
+        {
+          "id": "ju-2-c2",
+          "title": "Element-wise Sigmoid",
+          "description": "Implement `sigmoid(x)` that applies the sigmoid function **element-wise** to an array `x`:\n\n$$\\sigma(x_i) = \\frac{1}{1 + e^{-x_i}}$$\n\nUse broadcasting — no loops.",
+          "starterCode": "function sigmoid(x)\n    # Hint: use broadcasting with exp.() and the dot operator\nend\n",
+          "testCases": [
+            {
+              "id": "ju-2-c2-t1",
+              "description": "σ(0) = 0.5",
+              "appendCode": "println(round(sigmoid([0.0])[1], digits=4))",
+              "expectedOutput": "0.5",
+              "isHidden": false
+            },
+            {
+              "id": "ju-2-c2-t2",
+              "description": "σ(large) ≈ 1, σ(−large) ≈ 0",
+              "appendCode": "res = sigmoid([100.0, -100.0])\nprintln(round(res[1], digits=2), \" \", round(res[2], digits=2))",
+              "expectedOutput": "1.0 0.0",
+              "isHidden": false
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ju-3",
+      "title": "Control Flow & Functions",
+      "order": 3,
+      "starterCode": "# Control flow in Julia\n\n# if / elseif / else\nx = 42\nif x > 100\n    println(\"big\")\nelseif x > 10\n    println(\"medium\")\nelse\n    println(\"small\")\nend\n\n# while loop\nn = 1\nwhile n < 16\n    n *= 2\nend\nprintln(n)\n\n# for with range\ntotal = 0\nfor i in 1:10\n    total += i\nend\nprintln(total)  # 55\n",
+      "content": "## Control Flow & Functions\n\n### Conditionals\n\n```julia\nif x > 0\n    println(\"positive\")\nelseif x == 0\n    println(\"zero\")\nelse\n    println(\"negative\")\nend\n```\n\nOne-liner (ternary):\n```julia\nsign = x >= 0 ? \"non-negative\" : \"negative\"\n```\n\n### Loops\n\n```julia\n# for with range\nfor i in 1:5\n    print(\"$i \")\nend\n\n# for with array\nfor x in [10, 20, 30]\n    println(x)\nend\n\n# while\nn = 1\nwhile n < 100\n    n *= 2\nend\n```\n\nUse `break` to exit early, `continue` to skip an iteration.\n\n### Functions\n\n```julia\n# Full form\nfunction add(a, b)\n    return a + b\nend\n\n# Short form — last expression is returned\nadd(a, b) = a + b\n\n# Anonymous (lambda)\nf = x -> x^2 + 1\n```\n\n### Multiple return values\n\nJulia functions can return tuples naturally:\n\n```julia\nfunction minmax(v)\n    return minimum(v), maximum(v)\nend\n\nlo, hi = minmax([3, 1, 4, 1, 5, 9])\nprintln(lo, \" \", hi)   # 1 9\n```\n\n### Default and keyword arguments\n\n```julia\nfunction greet(name; greeting=\"Hello\")\n    println(\"$(greeting), $(name)!\")\nend\n\ngreet(\"ZERO Lab\")             # Hello, ZERO Lab!\ngreet(\"ZERO Lab\"; greeting=\"Hi\")  # Hi, ZERO Lab!\n```\n\n### map, filter, reduce\n\n```julia\nmap(x -> x^2, [1, 2, 3, 4])          # [1, 4, 9, 16]\nfilter(x -> x % 2 == 0, [1,2,3,4,5]) # [2, 4]\nreduce(+, [1, 2, 3, 4, 5])           # 15\n```\n",
+      "challenges": [
+        {
+          "id": "ju-3-c1",
+          "title": "Fibonacci",
+          "description": "Implement `fib(n)` that returns the nth Fibonacci number (1-indexed: `fib(1) = 1`, `fib(2) = 1`, `fib(3) = 2`, ...).\n\nUse iteration, not recursion (to handle large n efficiently).",
+          "starterCode": "function fib(n)\n    # Your code here\nend\n",
+          "testCases": [
+            {
+              "id": "ju-3-c1-t1",
+              "description": "fib(10) = 55",
+              "appendCode": "println(fib(10))",
+              "expectedOutput": "55",
+              "isHidden": false
+            },
+            {
+              "id": "ju-3-c1-t2",
+              "description": "fib(1) = 1",
+              "appendCode": "println(fib(1))",
+              "expectedOutput": "1",
+              "isHidden": false
+            },
+            {
+              "id": "ju-3-c1-t3",
+              "description": "fib(20) = 6765",
+              "appendCode": "println(fib(20))",
+              "expectedOutput": "6765",
+              "isHidden": true
+            }
+          ]
+        },
+        {
+          "id": "ju-3-c2",
+          "title": "Collatz Length",
+          "description": "The Collatz sequence starting at `n` is defined by:\n\n- If `n` is even: `n → n / 2`\n- If `n` is odd: `n → 3n + 1`\n\nRepeat until reaching 1. Implement `collatz_length(n)` returning the number of steps to reach 1 (counting the starting value).",
+          "starterCode": "function collatz_length(n)\n    # Your code here\nend\n",
+          "testCases": [
+            {
+              "id": "ju-3-c2-t1",
+              "description": "collatz_length(1) = 1",
+              "appendCode": "println(collatz_length(1))",
+              "expectedOutput": "1",
+              "isHidden": false
+            },
+            {
+              "id": "ju-3-c2-t2",
+              "description": "collatz_length(6) = 9",
+              "appendCode": "println(collatz_length(6))",
+              "expectedOutput": "9",
+              "isHidden": false
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ju-4",
+      "title": "Type System & Structs",
+      "order": 4,
+      "starterCode": "# Julia type system\n\n# Concrete struct\nstruct Point2D\n    x::Float64\n    y::Float64\nend\n\n# Constructor\np = Point2D(3.0, 4.0)\nprintln(\"p.x = $(p.x), p.y = $(p.y)\")\n\n# Method on the type\ndistance(p::Point2D) = sqrt(p.x^2 + p.y^2)\nprintln(\"||p|| = $(distance(p))\")\n\n# Mutable struct\nmutable struct Counter\n    value::Int\nend\nc = Counter(0)\nc.value += 1\nprintln(\"Counter: $(c.value)\")\n",
+      "content": "## Type System & Structs\n\nJulia's type system is the secret to its performance. Types enable the compiler to generate specialised machine code for each combination of argument types.\n\n### Concrete types (structs)\n\n```julia\nstruct Point3D\n    x::Float64\n    y::Float64\n    z::Float64\nend\n\np = Point3D(1.0, 2.0, 3.0)\nprintln(p.x)    # 1.0\n```\n\nStructs are **immutable by default** — values cannot be changed after creation. This allows heap-allocation-free optimisations.\n\n```julia\nmutable struct Particle\n    position::Point3D\n    velocity::Point3D\n    mass::Float64\nend\n```\n\n### Abstract types\n\nAbstract types define interfaces without implementation:\n\n```julia\nabstract type Shape end\n\nstruct Circle <: Shape\n    radius::Float64\nend\n\nstruct Rectangle <: Shape\n    width::Float64\n    height::Float64\nend\n\narea(s::Circle)    = π * s.radius^2\narea(s::Rectangle) = s.width * s.height\n```\n\n### Parametric types\n\nGeneric containers that work for any element type:\n\n```julia\nstruct Stack{T}\n    data::Vector{T}\nend\n\npush!(s::Stack, x) = push!(s.data, x)\npop!(s::Stack)     = pop!(s.data)\n```\n\n### Type hierarchy\n\n```julia\nInt64 <: Integer <: Real <: Number <: Any\nsupertype(Float64)   # AbstractFloat\nsubtypes(Integer)    # [Bool, Signed, Unsigned]\n```\n\nThis hierarchy powers multiple dispatch (next lesson).\n",
+      "challenges": [
+        {
+          "id": "ju-4-c1",
+          "title": "Point Distance",
+          "description": "Define a struct `Pt` with fields `x::Float64` and `y::Float64`.\n\nThen implement `dist(a::Pt, b::Pt)` that returns the Euclidean distance between two points.",
+          "starterCode": "struct Pt\n    # Define x and y fields\nend\n\nfunction dist(a::Pt, b::Pt)\n    # Your code here\nend\n",
+          "testCases": [
+            {
+              "id": "ju-4-c1-t1",
+              "description": "3-4-5 triangle",
+              "appendCode": "println(dist(Pt(0.0, 0.0), Pt(3.0, 4.0)))",
+              "expectedOutput": "5.0",
+              "isHidden": false
+            },
+            {
+              "id": "ju-4-c1-t2",
+              "description": "Same point → 0",
+              "appendCode": "println(dist(Pt(7.0, 3.0), Pt(7.0, 3.0)))",
+              "expectedOutput": "0.0",
+              "isHidden": false
+            }
+          ]
+        },
+        {
+          "id": "ju-4-c2",
+          "title": "Abstract Shape Area",
+          "description": "Define abstract type `Shape2D`. Define concrete subtypes:\n- `Disk` with field `r::Float64` (a filled circle)\n- `Rect` with fields `w::Float64` and `h::Float64`\n\nImplement `area(s)` for each subtype.",
+          "starterCode": "abstract type Shape2D end\n\nstruct Disk <: Shape2D\n    # r::Float64\nend\n\nstruct Rect <: Shape2D\n    # w::Float64\n    # h::Float64\nend\n\nfunction area(s::Disk)\n    # π * r^2\nend\n\nfunction area(s::Rect)\n    # w * h\nend\n",
+          "testCases": [
+            {
+              "id": "ju-4-c2-t1",
+              "description": "Disk area r=1 → π",
+              "appendCode": "println(round(area(Disk(1.0)), digits=6))",
+              "expectedOutput": "3.141593",
+              "isHidden": false
+            },
+            {
+              "id": "ju-4-c2-t2",
+              "description": "Rect area 3×4 = 12",
+              "appendCode": "println(area(Rect(3.0, 4.0)))",
+              "expectedOutput": "12.0",
+              "isHidden": false
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ju-5",
+      "title": "Multiple Dispatch",
+      "order": 5,
+      "starterCode": "# Multiple dispatch — Julia's superpower\n\n# Define a generic function\ndescribe(x) = println(\"Unknown type: \", typeof(x))\n\n# Specialise for different types\ndescribe(x::Int)     = println(\"Integer: $x\")\ndescribe(x::Float64) = println(\"Float:   $x\")\ndescribe(x::String)  = println(\"String:  \\\"$x\\\"\")\n\ndescribe(42)\ndescribe(3.14)\ndescribe(\"hello\")\ndescribe([1, 2, 3])  # falls back to generic\n",
+      "content": "## Multiple Dispatch\n\nMultiple dispatch is Julia's defining feature. A function can have many **methods** — specialised implementations selected at compile time based on the types of **all** arguments, not just the first (as in object-oriented dispatch).\n\n### Defining methods\n\n```julia\n# Generic fallback\nadd(a, b) = a + b\n\n# Specialisation: when both args are strings, concatenate with space\nadd(a::String, b::String) = \"$a $b\"\n\nadd(1, 2)            # 3\nadd(1.0, 2.0)        # 3.0\nadd(\"Hello\", \"World\") # \"Hello World\"\n```\n\n### Why this matters\n\nIn Python/Java, dispatch is on the *first* argument (the object). Julia dispatches on *all* arguments:\n\n```julia\ncollide(::Sphere, ::Sphere)   = \"sphere-sphere\"\ncollide(::Sphere, ::Box)      = \"sphere-box\"\ncollide(::Box,    ::Box)      = \"box-box\"\n```\n\nThis is incredibly useful for physics simulations, protocol handling, and library interoperability.\n\n### `methods()` introspection\n\n```julia\nmethods(+)        # all methods of addition\nmethods(describe) # your custom methods\n```\n\n### Performance\n\nThe compiler generates specialised machine code for each type combination. A call like `add(1.0, 2.0)` compiles to `addsd` (SSE double add) — as fast as C.\n\n### Parametric dispatch\n\n```julia\nfunction norm(v::Vector{T}) where T <: Number\n    sqrt(sum(x^2 for x in v))\nend\n```\n\nThis matches any `Vector` whose element type is a subtype of `Number`.\n",
+      "challenges": [
+        {
+          "id": "ju-5-c1",
+          "title": "Type-Aware Formatter",
+          "description": "Implement `fmt(x)` with separate methods for:\n- `Int` → `\"int:N\"` (e.g. `\"int:42\"`)\n- `Float64` → `\"float:X.XXX\"` (3 decimal places, e.g. `\"float:3.142\"`)\n- `String` → `\"str:hello\"`\n- Fallback → `\"other\"`",
+          "starterCode": "fmt(x) = \"other\"\n\n# Add specialised methods below\n",
+          "testCases": [
+            {
+              "id": "ju-5-c1-t1",
+              "description": "Int dispatch",
+              "appendCode": "println(fmt(42))",
+              "expectedOutput": "int:42",
+              "isHidden": false
+            },
+            {
+              "id": "ju-5-c1-t2",
+              "description": "Float dispatch",
+              "appendCode": "println(fmt(3.14159))",
+              "expectedOutput": "float:3.142",
+              "isHidden": false
+            },
+            {
+              "id": "ju-5-c1-t3",
+              "description": "String dispatch",
+              "appendCode": "println(fmt(\"hello\"))",
+              "expectedOutput": "str:hello",
+              "isHidden": false
+            },
+            {
+              "id": "ju-5-c1-t4",
+              "description": "Fallback",
+              "appendCode": "println(fmt(true))",
+              "expectedOutput": "other",
+              "isHidden": true
+            }
+          ]
+        },
+        {
+          "id": "ju-5-c2",
+          "title": "Generic Dot Product",
+          "description": "Implement `gdot(u::Vector{T}, v::Vector{T}) where T <: Number` that computes the dot product using a type-parametric method.\n\nAlso implement a fallback `gdot(u, v) = \"incompatible\"` that returns the string `\"incompatible\"`.",
+          "starterCode": "function gdot(u::Vector{T}, v::Vector{T}) where T <: Number\n    # Your code here\nend\n\ngdot(u, v) = \"incompatible\"\n",
+          "testCases": [
+            {
+              "id": "ju-5-c2-t1",
+              "description": "Integer vectors",
+              "appendCode": "println(gdot([1, 2, 3], [4, 5, 6]))",
+              "expectedOutput": "32",
+              "isHidden": false
+            },
+            {
+              "id": "ju-5-c2-t2",
+              "description": "Float vectors",
+              "appendCode": "println(gdot([1.0, 0.0], [0.0, 1.0]))",
+              "expectedOutput": "0.0",
+              "isHidden": false
+            },
+            {
+              "id": "ju-5-c2-t3",
+              "description": "Incompatible types",
+              "appendCode": "println(gdot([1, 2], [1.0, 2.0]))",
+              "expectedOutput": "incompatible",
+              "isHidden": true
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

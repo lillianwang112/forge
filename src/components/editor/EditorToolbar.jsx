@@ -24,6 +24,7 @@ export default function EditorToolbar({
   isRunning = false,
   isStreaming = false,
   engineStatus = 'loading', // 'loading' | 'ready' | 'executing' | 'error'
+  hideLangToggle = false,
 }) {
   // Julia is always runnable (cloud API); Python needs to finish loading
   const canRun = !isRunning && engineStatus === 'ready';
@@ -68,42 +69,44 @@ export default function EditorToolbar({
       }}
     >
       {/* Language toggle */}
-      <div
-        style={{
-          display: 'flex',
-          borderRadius: 7,
-          border: '1px solid var(--border)',
-          overflow: 'hidden',
-        }}
-      >
-        <button
-          onClick={() => onLanguageChange?.('python')}
+      {!hideLangToggle && (
+        <div
           style={{
-            ...btnBase,
-            borderRadius: 0,
-            border: 'none',
-            backgroundColor: language === 'python' ? 'rgba(63,185,80,0.18)' : 'transparent',
-            color: language === 'python' ? 'var(--accent-green)' : 'var(--text-secondary)',
-            borderRight: '1px solid var(--border)',
-            padding: '4px 12px',
+            display: 'flex',
+            borderRadius: 7,
+            border: '1px solid var(--border)',
+            overflow: 'hidden',
           }}
         >
-          🐍 Python
-        </button>
-        <button
-          onClick={() => onLanguageChange?.('julia')}
-          style={{
-            ...btnBase,
-            borderRadius: 0,
-            border: 'none',
-            backgroundColor: language === 'julia' ? 'rgba(163,113,247,0.18)' : 'transparent',
-            color: language === 'julia' ? 'var(--accent-purple)' : 'var(--text-secondary)',
-            padding: '4px 12px',
-          }}
-        >
-          💜 Julia
-        </button>
-      </div>
+          <button
+            onClick={() => onLanguageChange?.('python')}
+            style={{
+              ...btnBase,
+              borderRadius: 0,
+              border: 'none',
+              backgroundColor: language === 'python' ? 'rgba(63,185,80,0.18)' : 'transparent',
+              color: language === 'python' ? 'var(--accent-green)' : 'var(--text-secondary)',
+              borderRight: '1px solid var(--border)',
+              padding: '4px 12px',
+            }}
+          >
+            🐍 Python
+          </button>
+          <button
+            onClick={() => onLanguageChange?.('julia')}
+            style={{
+              ...btnBase,
+              borderRadius: 0,
+              border: 'none',
+              backgroundColor: language === 'julia' ? 'rgba(163,113,247,0.18)' : 'transparent',
+              color: language === 'julia' ? 'var(--accent-purple)' : 'var(--text-secondary)',
+              padding: '4px 12px',
+            }}
+          >
+            💜 Julia
+          </button>
+        </div>
+      )}
 
       {/* Runtime badge */}
       <span

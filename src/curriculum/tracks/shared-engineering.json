@@ -1,0 +1,146 @@
+{
+  "id": "shared",
+  "name": "Shared Skills",
+  "emoji": "⚡",
+  "language": "python",
+  "color": "var(--accent-blue)",
+  "bgColor": "rgba(88,166,255,0.07)",
+  "borderColor": "rgba(88,166,255,0.2)",
+  "description": "Math foundations, algorithm design, data structures, and ML essentials.",
+  "lessons": [
+    {
+      "id": "sh-1",
+      "title": "Git for Research",
+      "order": 1,
+      "starterCode": "# Simulate a mini version-control log in Python\n# (Actual git runs in a terminal, not the browser)\n\ncommits = [\n    {\"hash\": \"a1b2c3d\", \"msg\": \"Initial project setup\",      \"author\": \"Alice\"},\n    {\"hash\": \"e4f5a6b\", \"msg\": \"Add data loading pipeline\",   \"author\": \"Alice\"},\n    {\"hash\": \"7c8d9e0\", \"msg\": \"Fix off-by-one in indexing\",  \"author\": \"Bob\"},\n    {\"hash\": \"f1a2b3c\", \"msg\": \"feat: optimise solver step\",  \"author\": \"Alice\"},\n]\n\nfor c in reversed(commits):\n    print(f\"{c['hash'][:7]}  {c['author']:<8}  {c['msg']}\")\n",
+      "content": "## Git for Research\n\nVersion control is non-negotiable in a research environment. At ZERO Lab (and any serious lab), every experiment is reproducible, every change is tracked, and collaboration happens through branches and pull requests.\n\n### Essential commands\n\n```bash\n# Starting out\ngit init                        # create repo\ngit clone <url>                 # copy existing repo\n\n# Daily workflow\ngit status                      # what changed?\ngit diff                        # line-by-line diff\ngit add <file>                  # stage a file\ngit add -p                      # stage hunks interactively\ngit commit -m \"feat: add LQR controller\"\ngit push origin main\n\n# Branches\ngit checkout -b feature/my-idea # create + switch\ngit merge feature/my-idea       # merge into current\ngit branch -d feature/my-idea   # delete branch\n```\n\n### Good commit messages\n\nFollow the [Conventional Commits](https://www.conventionalcommits.org/) format:\n\n```\n<type>: <short description>\n\n[optional body]\n```\n\nTypes: `feat`, `fix`, `refactor`, `docs`, `test`, `chore`\n\n```\nfeat: implement Runge-Kutta 4 integrator\nfix: correct sign error in Jacobian transpose\ndocs: add derivation to README\n```\n\n### Research workflow\n\n1. **Never commit to `main` directly** — create a branch for each experiment\n2. **Commit data-generation scripts**, not raw data (data can be regenerated)\n3. **Tag releases**: `git tag v1.0.0` before submitting a paper\n4. **Use `.gitignore`** — exclude `__pycache__/`, `.ipynb_checkpoints/`, `*.pyc`\n\n### Collaboration\n\n```bash\ngit fetch origin                 # download remote changes\ngit pull --rebase origin main    # rebase onto latest main\ngit log --oneline --graph        # visual branch history\ngit blame <file>                 # who wrote each line\n```\n",
+      "challenges": [
+        {
+          "id": "sh-1-c1",
+          "title": "Commit Message Validator",
+          "description": "Implement `is_valid_commit(msg)` that returns `True` if `msg` follows Conventional Commits format:\n- Starts with a type: `feat`, `fix`, `docs`, `refactor`, `test`, or `chore`\n- Followed by `: ` (colon + space)\n- Followed by at least one character\n\nExamples:\n- `\"feat: add solver\"` → `True`\n- `\"fix: off-by-one\"` → `True`\n- `\"updated stuff\"` → `False`\n- `\"FEAT: add solver\"` → `False`",
+          "starterCode": "def is_valid_commit(msg):\n    valid_types = ['feat', 'fix', 'docs', 'refactor', 'test', 'chore']\n    # Your code here\n    pass\n",
+          "testCases": [
+            {
+              "id": "sh-1-c1-t1",
+              "description": "Valid: feat",
+              "appendCode": "print(is_valid_commit('feat: add LQR controller'))",
+              "expectedOutput": "True",
+              "isHidden": false
+            },
+            {
+              "id": "sh-1-c1-t2",
+              "description": "Valid: fix",
+              "appendCode": "print(is_valid_commit('fix: correct sign error'))",
+              "expectedOutput": "True",
+              "isHidden": false
+            },
+            {
+              "id": "sh-1-c1-t3",
+              "description": "Invalid: no type prefix",
+              "appendCode": "print(is_valid_commit('updated stuff'))",
+              "expectedOutput": "False",
+              "isHidden": false
+            },
+            {
+              "id": "sh-1-c1-t4",
+              "description": "Invalid: uppercase type",
+              "appendCode": "print(is_valid_commit('FEAT: add solver'))",
+              "expectedOutput": "False",
+              "isHidden": true
+            },
+            {
+              "id": "sh-1-c1-t5",
+              "description": "Invalid: no description",
+              "appendCode": "print(is_valid_commit('fix: '))",
+              "expectedOutput": "False",
+              "isHidden": true
+            }
+          ]
+        },
+        {
+          "id": "sh-1-c2",
+          "title": "Branch Name Validator",
+          "description": "Research teams use branch naming conventions to stay organised. Implement `is_valid_branch(name)` that returns `True` if the branch name:\n- Starts with `feature/`, `fix/`, `experiment/`, or `docs/`\n- Contains only lowercase letters, digits, hyphens, and forward slashes after the prefix\n- Is at least 8 characters total",
+          "starterCode": "import re\n\ndef is_valid_branch(name):\n    # Your code here\n    pass\n",
+          "testCases": [
+            {
+              "id": "sh-1-c2-t1",
+              "description": "Valid feature branch",
+              "appendCode": "print(is_valid_branch('feature/lqr-controller'))",
+              "expectedOutput": "True",
+              "isHidden": false
+            },
+            {
+              "id": "sh-1-c2-t2",
+              "description": "Valid experiment branch",
+              "appendCode": "print(is_valid_branch('experiment/rk4-test'))",
+              "expectedOutput": "True",
+              "isHidden": false
+            },
+            {
+              "id": "sh-1-c2-t3",
+              "description": "Invalid: no prefix",
+              "appendCode": "print(is_valid_branch('my-changes'))",
+              "expectedOutput": "False",
+              "isHidden": false
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "sh-2",
+      "title": "Code Documentation",
+      "order": 2,
+      "starterCode": "# Good documentation makes your research reproducible\n\ndef solve_ode(f, y0, t_span, dt=0.01):\n    \"\"\"Integrate an ODE using the Euler method.\n\n    Parameters\n    ----------\n    f : callable\n        The right-hand side function f(t, y) of dy/dt = f(t, y).\n    y0 : float or array-like\n        Initial condition.\n    t_span : tuple of (float, float)\n        Integration interval (t_start, t_end).\n    dt : float, optional\n        Step size. Default is 0.01.\n\n    Returns\n    -------\n    list of float\n        Solution values at each time step.\n    \"\"\"\n    import numpy as np\n    t0, tf = t_span\n    t = t0\n    y = y0\n    result = [y0]\n    while t < tf:\n        y = y + dt * f(t, y)\n        t += dt\n        result.append(y)\n    return result\n\n# Test it: dy/dt = -y, y(0) = 1  →  solution: y(t) = e^{-t}\nys = solve_ode(lambda t, y: -y, 1.0, (0, 1), dt=0.001)\nprint(f\"y(1) ≈ {ys[-1]:.4f}  (exact: {1/2.71828:.4f})\")\n",
+      "content": "## Code Documentation\n\nGood documentation is how you communicate with future-you and your collaborators. In research code, documentation is especially important because the algorithms are non-trivial and the intent is not always obvious from the code.\n\n### Python docstrings (NumPy style)\n\n```python\ndef compute_jacobian(f, x, eps=1e-6):\n    \"\"\"Estimate the Jacobian of f at x using finite differences.\n\n    Parameters\n    ----------\n    f : callable\n        Vector-valued function f(x).\n    x : ndarray, shape (n,)\n        Point at which to evaluate the Jacobian.\n    eps : float, optional\n        Finite difference step size. Default is 1e-6.\n\n    Returns\n    -------\n    J : ndarray, shape (m, n)\n        Jacobian matrix where J[i,j] = ∂f_i/∂x_j.\n    \"\"\"\n    ...\n```\n\n### Julia docstrings\n\n```julia\n\"\"\"\n    rk4_step(f, t, y, h)\n\nPerform a single 4th-order Runge-Kutta integration step.\n\n# Arguments\n- `f`: right-hand side function `f(t, y)`\n- `t`: current time\n- `y`: current state\n- `h`: step size\n\n# Returns\nNext state `y_{n+1}`.\n\"\"\"\nfunction rk4_step(f, t, y, h)\n    k1 = f(t,       y)\n    k2 = f(t + h/2, y + h/2 * k1)\n    k3 = f(t + h/2, y + h/2 * k2)\n    k4 = f(t + h,   y + h   * k3)\n    return y + h/6 * (k1 + 2k2 + 2k3 + k4)\nend\n```\n\n### What to document\n\n- **Every public function** — parameters, types, return values, examples\n- **Non-obvious algorithms** — cite the paper or formula\n- **Units** — `# velocity in m/s`, `# angle in radians`\n- **Preconditions** — `# A must be positive-definite`\n\n### What NOT to document\n\n```python\n# BAD — states the obvious\nx = x + 1  # increment x by 1\n\n# GOOD — explains the why\nx = x + 1  # advance to next timestep (1-indexed)\n```\n\n### README essentials\n\nEvery research repo needs a README with:\n1. **What** — one-sentence description\n2. **How to install** — exact commands\n3. **How to run** — example invocations\n4. **Citation** — BibTeX if published\n",
+      "challenges": [
+        {
+          "id": "sh-2-c1",
+          "title": "Docstring Parser",
+          "description": "Implement `extract_params(docstring)` that parses a NumPy-style docstring and returns a list of parameter names listed under the `Parameters` section.\n\nA parameter line looks like: `    name : type` (4 spaces, name, ` : `, type).\n\nReturn the names as a list of strings in order.",
+          "starterCode": "def extract_params(docstring):\n    \"\"\"Extract parameter names from a NumPy-style docstring.\"\"\"\n    params = []\n    # Hint: find the 'Parameters' section,\n    # then collect lines matching '    name : type'\n    pass\n    return params\n",
+          "testCases": [
+            {
+              "id": "sh-2-c1-t1",
+              "description": "Extracts two params",
+              "appendCode": "doc = '''\nCompute stuff.\n\nParameters\n----------\nx : float\n    Input value.\nn : int\n    Number of steps.\n\nReturns\n-------\nfloat\n'''\nprint(extract_params(doc))",
+              "expectedOutput": "['x', 'n']",
+              "isHidden": false
+            },
+            {
+              "id": "sh-2-c1-t2",
+              "description": "No Parameters section",
+              "appendCode": "print(extract_params('Just a description.'))",
+              "expectedOutput": "[]",
+              "isHidden": false
+            }
+          ]
+        },
+        {
+          "id": "sh-2-c2",
+          "title": "Type Annotation Checker",
+          "description": "Python 3 supports type annotations. Implement `has_annotations(func)` that returns `True` if a function has **at least one** parameter annotation OR a return annotation.\n\nUse `func.__annotations__`.",
+          "starterCode": "def has_annotations(func):\n    # func.__annotations__ is a dict mapping\n    # parameter names and 'return' to their annotations\n    pass\n",
+          "testCases": [
+            {
+              "id": "sh-2-c2-t1",
+              "description": "Annotated function",
+              "appendCode": "def greet(name: str) -> str:\n    return f'hi {name}'\nprint(has_annotations(greet))",
+              "expectedOutput": "True",
+              "isHidden": false
+            },
+            {
+              "id": "sh-2-c2-t2",
+              "description": "Unannotated function",
+              "appendCode": "def add(a, b):\n    return a + b\nprint(has_annotations(add))",
+              "expectedOutput": "False",
+              "isHidden": false
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

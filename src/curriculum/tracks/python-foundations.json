@@ -1,0 +1,298 @@
+{
+  "id": "python",
+  "name": "Python Track",
+  "emoji": "🐍",
+  "language": "python",
+  "color": "var(--accent-green)",
+  "bgColor": "rgba(63,185,80,0.07)",
+  "borderColor": "rgba(63,185,80,0.2)",
+  "description": "NumPy, SciPy, data pipelines, numerical methods and scientific computing.",
+  "lessons": [
+    {
+      "id": "py-1",
+      "title": "Python for Scientists",
+      "order": 1,
+      "starterCode": "# Lesson 1 — Python for Scientists\n\n# Dynamic typing — no type declarations needed\nx = 3.14\nname = \"Forge\"\nactive = True\n\n# f-strings for clean output\nprint(f\"pi ≈ {x}\")\nprint(f\"Hello from {name}!\")\n\n# Python uses indentation instead of braces\ndef square(n):\n    return n * n\n\nprint(square(7))\n",
+      "content": "## Python for Scientists\n\nPython is the lingua franca of scientific computing. Unlike Java or C++, Python lets you prototype ideas in seconds without boilerplate — yet through NumPy and SciPy it reaches near-C speeds for array math.\n\n### Key differences from Java/C++\n\n- **Dynamic typing** — variables need no declaration; types are inferred\n- **Indentation** — blocks are defined by indentation, not `{}`\n- **Everything is an object** — even functions and modules\n- **Interactive** — run code line-by-line in a REPL or Jupyter notebook\n\n```python\n# Java:  double x = 3.14;\n# Python:\nx = 3.14\n```\n\n### f-strings\n\nThe cleanest way to format output:\n\n```python\nname = \"Alice\"\nscore = 98.6\nprint(f\"{name} scored {score:.1f}\")\n# Alice scored 98.6\n```\n\n### Functions\n\n```python\ndef greet(name, greeting=\"Hello\"):\n    return f\"{greeting}, {name}!\"\n\nprint(greet(\"ZERO Lab\"))        # Hello, ZERO Lab!\nprint(greet(\"ZERO Lab\", \"Hi\"))  # Hi, ZERO Lab!\n```\n\n### Truthiness & comparisons\n\nPython uses `and`, `or`, `not` instead of `&&`, `||`, `!`:\n\n```python\nx = 5\nif 0 < x < 10:  # chained comparisons!\n    print(\"in range\")\n```\n\n### Why Python for robotics/control?\n\n- **NumPy** — vectorised arrays, linear algebra, FFT\n- **SciPy** — optimization, integration, signal processing\n- **Matplotlib** — publication-quality plots\n- **ROS 2** — Python-native robot middleware\n",
+      "challenges": [
+        {
+          "id": "py-1-c1",
+          "title": "Temperature Conversion",
+          "description": "Implement `celsius_to_kelvin(c)` that converts a Celsius temperature to Kelvin.\n\nRecall: **K = °C + 273.15**",
+          "starterCode": "def celsius_to_kelvin(c):\n    # Your code here\n    pass\n",
+          "testCases": [
+            {
+              "id": "py-1-c1-t1",
+              "description": "0 °C = 273.15 K",
+              "appendCode": "print(celsius_to_kelvin(0.0))",
+              "expectedOutput": "273.15",
+              "isHidden": false
+            },
+            {
+              "id": "py-1-c1-t2",
+              "description": "100 °C = 373.15 K",
+              "appendCode": "print(celsius_to_kelvin(100.0))",
+              "expectedOutput": "373.15",
+              "isHidden": false
+            },
+            {
+              "id": "py-1-c1-t3",
+              "description": "Absolute zero: −273.15 °C = 0 K",
+              "appendCode": "print(celsius_to_kelvin(-273.15))",
+              "expectedOutput": "0.0",
+              "isHidden": true
+            }
+          ]
+        },
+        {
+          "id": "py-1-c2",
+          "title": "Value Clamping",
+          "description": "Implement `clamp(value, lo, hi)` that returns `value` constrained to the range `[lo, hi]`.\n\nDo **not** use `min`/`max` built-ins — write the logic yourself using `if`.",
+          "starterCode": "def clamp(value, lo, hi):\n    # Your code here\n    pass\n",
+          "testCases": [
+            {
+              "id": "py-1-c2-t1",
+              "description": "Value in range is unchanged",
+              "appendCode": "print(clamp(5, 0, 10))",
+              "expectedOutput": "5",
+              "isHidden": false
+            },
+            {
+              "id": "py-1-c2-t2",
+              "description": "Value below lo is clamped to lo",
+              "appendCode": "print(clamp(-3, 0, 10))",
+              "expectedOutput": "0",
+              "isHidden": false
+            },
+            {
+              "id": "py-1-c2-t3",
+              "description": "Value above hi is clamped to hi",
+              "appendCode": "print(clamp(15, 0, 10))",
+              "expectedOutput": "10",
+              "isHidden": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "py-2",
+      "title": "NumPy Arrays",
+      "order": 2,
+      "starterCode": "import numpy as np\n\n# 1D array from a list\nv = np.array([1.0, 2.0, 3.0, 4.0, 5.0])\nprint(\"v     =\", v)\nprint(\"mean  =\", np.mean(v))\nprint(\"std   =\", round(float(np.std(v)), 4))\n\n# Vectorised operations — no loops needed\nprint(\"v * 2 =\", v * 2)\nprint(\"v**2  =\", v**2)\n\n# linspace\nx = np.linspace(0, 1, 5)\nprint(\"x     =\", x)\n",
+      "content": "## NumPy Arrays\n\nNumPy's `ndarray` is the backbone of scientific Python. Instead of looping over elements, you apply operations to entire arrays at once — this is called **vectorisation** and it's typically 10–100× faster than equivalent Python loops.\n\n### Creating arrays\n\n```python\nimport numpy as np\n\nnp.array([1, 2, 3])          # from list\nnp.zeros((3, 4))             # 3×4 matrix of zeros\nnp.ones(5)                   # [1. 1. 1. 1. 1.]\nnp.linspace(0, 1, 100)       # 100 evenly spaced points in [0,1]\nnp.arange(0, 10, 2)          # [0 2 4 6 8]\n```\n\n### Vectorised math\n\n```python\nv = np.array([3.0, 4.0])\nprint(np.sqrt(v))      # [1.732 2.   ]\nprint(v * 2)           # [6. 8.]\nprint(v @ v)           # dot product = 25.0\n```\n\n### Indexing & slicing\n\n```python\nA = np.array([[1, 2, 3],\n              [4, 5, 6]])\nprint(A[1, 2])      # 6   — row 1, col 2\nprint(A[:, 1])      # [2 5] — all rows, col 1\nprint(A[0, :2])     # [1 2] — row 0, first two cols\n```\n\n### Boolean indexing\n\n```python\nv = np.array([1, -2, 3, -4, 5])\nprint(v[v > 0])   # [1 3 5] — only positive elements\n```\n\n### Reduction functions\n\n```python\nv = np.array([1.0, 2.0, 3.0, 4.0])\nnp.sum(v)     # 10.0\nnp.mean(v)    # 2.5\nnp.std(v)     # 1.118…\nnp.min(v)     # 1.0\nnp.argmax(v)  # 3  (index of max)\n```\n\n### Why this matters for robotics\n\nSensor readings, joint angles, and state vectors are all arrays. Filtering, transformations, and Jacobians are matrix operations. Mastering NumPy means manipulating these with minimal code.\n",
+      "challenges": [
+        {
+          "id": "py-2-c1",
+          "title": "L2 Norm",
+          "description": "Implement `l2_norm(v)` that computes the Euclidean (L2) norm of a NumPy vector.\n\n$$\\|v\\|_2 = \\sqrt{\\sum_i v_i^2}$$\n\nUse NumPy operations — no `np.linalg.norm`.",
+          "starterCode": "import numpy as np\n\ndef l2_norm(v):\n    # Your code here\n    pass\n",
+          "testCases": [
+            {
+              "id": "py-2-c1-t1",
+              "description": "3-4-5 right triangle",
+              "appendCode": "print(l2_norm(np.array([3.0, 4.0])))",
+              "expectedOutput": "5.0",
+              "isHidden": false
+            },
+            {
+              "id": "py-2-c1-t2",
+              "description": "Unit vector in z",
+              "appendCode": "print(l2_norm(np.array([0.0, 0.0, 1.0])))",
+              "expectedOutput": "1.0",
+              "isHidden": false
+            },
+            {
+              "id": "py-2-c1-t3",
+              "description": "Zero vector",
+              "appendCode": "print(l2_norm(np.array([0.0, 0.0, 0.0])))",
+              "expectedOutput": "0.0",
+              "isHidden": true
+            }
+          ]
+        },
+        {
+          "id": "py-2-c2",
+          "title": "Unit Vector",
+          "description": "Implement `normalize(v)` that returns the unit vector in the direction of `v`.\n\n$$\\hat{v} = \\frac{v}{\\|v\\|_2}$$\n\nReturn `v` unchanged if `\\|v\\|_2 = 0`.",
+          "starterCode": "import numpy as np\n\ndef normalize(v):\n    # Your code here\n    pass\n",
+          "testCases": [
+            {
+              "id": "py-2-c2-t1",
+              "description": "Norm of result is 1.0",
+              "appendCode": "result = normalize(np.array([3.0, 4.0]))\nprint(round(float(np.linalg.norm(result)), 6))",
+              "expectedOutput": "1.0",
+              "isHidden": false
+            },
+            {
+              "id": "py-2-c2-t2",
+              "description": "Direction is preserved",
+              "appendCode": "result = normalize(np.array([0.0, 5.0]))\nprint(round(float(result[1]), 6))",
+              "expectedOutput": "1.0",
+              "isHidden": false
+            },
+            {
+              "id": "py-2-c2-t3",
+              "description": "Zero vector returns zero vector",
+              "appendCode": "z = normalize(np.array([0.0, 0.0]))\nprint(float(np.linalg.norm(z)))",
+              "expectedOutput": "0.0",
+              "isHidden": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "py-3",
+      "title": "Broadcasting & Vectorisation",
+      "order": 3,
+      "starterCode": "import numpy as np\n\n# Broadcasting — operating on arrays of different shapes\nA = np.array([[1, 2, 3],\n              [4, 5, 6]])\nbias = np.array([10, 20, 30])\nprint(A + bias)   # bias added to every row\n\n# Avoid explicit loops\nx = np.linspace(0, 2 * np.pi, 8)\nprint(np.round(np.sin(x), 2))\n",
+      "content": "## Broadcasting & Vectorisation\n\nBroadcasting is NumPy's mechanism for applying operations between arrays of **different but compatible shapes** — without copying data or writing loops.\n\n### Broadcasting rules\n\nTwo dimensions are compatible if they are equal **or** one of them is 1. NumPy pads dimensions from the left with size-1 axes as needed.\n\n```python\nA = np.ones((3, 4))   # shape (3, 4)\nv = np.array([1, 2, 3, 4])  # shape (4,)\nprint((A + v).shape)  # (3, 4) — v broadcast across rows\n```\n\n### Common patterns\n\n```python\n# Subtract column mean from each column\nX = np.random.rand(100, 5)\nX_centered = X - X.mean(axis=0)   # mean shape: (5,)\n\n# Scale each feature by its std\nX_scaled = X_centered / X.std(axis=0)\n```\n\n### Avoiding loops\n\nPython loops are slow; NumPy ufuncs run in C:\n\n```python\n# Slow\nresult = []\nfor xi in x:\n    result.append(xi ** 2 + 2 * xi - 1)\n\n# Fast\nresult = x**2 + 2*x - 1\n```\n\n### `np.where` — conditional vectorisation\n\n```python\nx = np.array([-2, -1, 0, 1, 2])\npos = np.where(x > 0, x, 0)  # ReLU\nprint(pos)  # [0 0 0 1 2]\n```\n\n### Axis parameter\n\nMost reduction functions accept an `axis` argument:\n\n```python\nA = np.array([[1, 2], [3, 4], [5, 6]])\nA.sum(axis=0)  # sum down rows → [9, 12]\nA.sum(axis=1)  # sum across cols → [3, 7, 11]\n```\n",
+      "challenges": [
+        {
+          "id": "py-3-c1",
+          "title": "Running Mean",
+          "description": "Implement `running_mean(arr)` that returns an array of the same length where element `i` is the mean of `arr[0..i]` (inclusive).\n\nUse `np.cumsum` and vectorised division — no loops.",
+          "starterCode": "import numpy as np\n\ndef running_mean(arr):\n    # Hint: np.cumsum gives you a running sum.\n    # Dividing by the index (1, 2, 3, ...) gives the running mean.\n    pass\n",
+          "testCases": [
+            {
+              "id": "py-3-c1-t1",
+              "description": "Last element is overall mean",
+              "appendCode": "arr = np.array([1.0, 2.0, 3.0, 4.0])\nprint(running_mean(arr)[-1])",
+              "expectedOutput": "2.5",
+              "isHidden": false
+            },
+            {
+              "id": "py-3-c1-t2",
+              "description": "First element equals first input",
+              "appendCode": "arr = np.array([7.0, 3.0, 5.0])\nprint(running_mean(arr)[0])",
+              "expectedOutput": "7.0",
+              "isHidden": false
+            },
+            {
+              "id": "py-3-c1-t3",
+              "description": "Middle element is correct",
+              "appendCode": "arr = np.array([2.0, 4.0, 6.0])\nprint(running_mean(arr)[1])",
+              "expectedOutput": "3.0",
+              "isHidden": true
+            }
+          ]
+        },
+        {
+          "id": "py-3-c2",
+          "title": "ReLU Activation",
+          "description": "Implement `relu(x)` that applies the ReLU activation function element-wise:\n\n$$\\text{ReLU}(x_i) = \\max(0, x_i)$$\n\nUse `np.where` or `np.maximum` — no Python loops.",
+          "starterCode": "import numpy as np\n\ndef relu(x):\n    # Your code here\n    pass\n",
+          "testCases": [
+            {
+              "id": "py-3-c2-t1",
+              "description": "Negative values zeroed",
+              "appendCode": "print(relu(np.array([-3.0, -1.0, 0.0, 2.0, 5.0])).tolist())",
+              "expectedOutput": "[0.0, 0.0, 0.0, 2.0, 5.0]",
+              "isHidden": false
+            },
+            {
+              "id": "py-3-c2-t2",
+              "description": "All-positive vector unchanged",
+              "appendCode": "v = np.array([1.0, 2.0, 3.0])\nprint((relu(v) == v).all())",
+              "expectedOutput": "True",
+              "isHidden": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "py-4",
+      "title": "SciPy Linear Algebra",
+      "order": 4,
+      "starterCode": "import numpy as np\nimport scipy.linalg as la\n\n# Solve Ax = b\nA = np.array([[2.0, 1.0],\n              [1.0, 3.0]])\nb = np.array([5.0, 10.0])\n\nx = la.solve(A, b)\nprint(\"Solution x =\", np.round(x, 4))\nprint(\"Residual   =\", np.round(A @ x - b, 10))\n\n# Eigenvalues\nvals, vecs = la.eig(A)\nprint(\"Eigenvalues:\", np.round(vals.real, 4))\n",
+      "content": "## SciPy Linear Algebra\n\n`scipy.linalg` (and `numpy.linalg`) provide production-grade linear algebra routines — the same algorithms used in MATLAB and Fortran LAPACK, but with Python syntax.\n\n### Solving linear systems: Ax = b\n\n```python\nimport numpy as np\nimport scipy.linalg as la\n\nA = np.array([[2, 1], [1, 3]], dtype=float)\nb = np.array([5, 10], dtype=float)\n\nx = la.solve(A, b)   # prefer over np.linalg.inv(A) @ b\nprint(x)  # [1. 3.]\n```\n\n`la.solve` uses LU factorisation and is more numerically stable than explicit inversion.\n\n### Eigendecomposition\n\n```python\nvals, vecs = la.eig(A)\n# vals: eigenvalues (may be complex)\n# vecs: columns are eigenvectors\n```\n\nFor symmetric matrices use `la.eigh` — faster and returns real values.\n\n### Least-squares\n\nWhen the system is overdetermined (more equations than unknowns):\n\n```python\n# Fit y = a*x + b to noisy data\nA = np.column_stack([x, np.ones(len(x))])\ncoeffs, residuals, rank, sv = np.linalg.lstsq(A, y, rcond=None)\na, b = coeffs\n```\n\n### SVD\n\nSingular Value Decomposition underpins PCA, image compression, and pseudo-inversion:\n\n```python\nU, s, Vh = la.svd(A)\n# A = U @ np.diag(s) @ Vh\n\n# Condition number\nprint(s[0] / s[-1])   # large → ill-conditioned\n```\n\n### Cholesky decomposition\n\nFor symmetric positive-definite matrices (covariance matrices, mass matrices):\n\n```python\nL = la.cholesky(A, lower=True)   # A = L @ L.T\n```\n\nCholesky is ~2× faster than LU and numerically preferred when applicable.\n",
+      "challenges": [
+        {
+          "id": "py-4-c1",
+          "title": "Solving a Linear System",
+          "description": "Implement `solve_system(A, b)` that returns the solution vector `x` to the linear system **Ax = b**.\n\nUse `scipy.linalg.solve`.",
+          "starterCode": "import numpy as np\nimport scipy.linalg as la\n\ndef solve_system(A, b):\n    # Your code here\n    pass\n",
+          "testCases": [
+            {
+              "id": "py-4-c1-t1",
+              "description": "2×2 system",
+              "appendCode": "A = np.array([[2.0, 1.0], [1.0, 3.0]])\nb = np.array([5.0, 10.0])\nx = solve_system(A, b)\nprint(f\"{x[0]:.1f}, {x[1]:.1f}\")",
+              "expectedOutput": "1.0, 3.0",
+              "isHidden": false
+            },
+            {
+              "id": "py-4-c1-t2",
+              "description": "Identity system",
+              "appendCode": "A = np.eye(3)\nb = np.array([7.0, 8.0, 9.0])\nx = solve_system(A, b)\nprint(f\"{x[0]:.1f}, {x[1]:.1f}, {x[2]:.1f}\")",
+              "expectedOutput": "7.0, 8.0, 9.0",
+              "isHidden": false
+            }
+          ]
+        },
+        {
+          "id": "py-4-c2",
+          "title": "Matrix Rank",
+          "description": "Implement `matrix_rank(A)` that returns the rank of matrix `A` using its SVD.\n\nA singular value is considered nonzero if it exceeds `1e-10`.",
+          "starterCode": "import numpy as np\nimport scipy.linalg as la\n\ndef matrix_rank(A):\n    # Hint: la.svd returns (U, s, Vh). Count nonzero singular values.\n    pass\n",
+          "testCases": [
+            {
+              "id": "py-4-c2-t1",
+              "description": "Full-rank 2×2",
+              "appendCode": "print(matrix_rank(np.array([[1.0, 0.0], [0.0, 1.0]])))",
+              "expectedOutput": "2",
+              "isHidden": false
+            },
+            {
+              "id": "py-4-c2-t2",
+              "description": "Rank-1 matrix",
+              "appendCode": "A = np.array([[1.0, 2.0], [2.0, 4.0]])\nprint(matrix_rank(A))",
+              "expectedOutput": "1",
+              "isHidden": false
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "py-5",
+      "title": "SciPy Optimisation",
+      "order": 5,
+      "starterCode": "from scipy.optimize import minimize_scalar, brentq\nimport numpy as np\n\n# Minimise f(x) = (x - 3)^2 + 1  →  minimum at x=3\nf = lambda x: (x - 3)**2 + 1\nresult = minimize_scalar(f)\nprint(f\"Minimum at x = {result.x:.4f}, f = {result.fun:.4f}\")\n\n# Find root of g(x) = x^2 - 4  →  roots ±2\ng = lambda x: x**2 - 4\nroot = brentq(g, 0, 5)\nprint(f\"Root of g(x): {root:.4f}\")\n",
+      "content": "## SciPy Optimisation\n\nOptimisation is central to robotics and control: trajectory planning, parameter fitting, inverse kinematics, and model-predictive control all boil down to minimising some objective function.\n\n### 1D minimisation\n\n```python\nfrom scipy.optimize import minimize_scalar\n\nf = lambda x: (x - 2)**2 + 1   # quadratic, min at x=2\nres = minimize_scalar(f)\nprint(res.x)   # ≈ 2.0\n```\n\nFor bounded search:\n```python\nres = minimize_scalar(f, bounds=(0, 5), method='bounded')\n```\n\n### Multivariate minimisation\n\n```python\nfrom scipy.optimize import minimize\nimport numpy as np\n\ndef rosenbrock(x):\n    return (1 - x[0])**2 + 100*(x[1] - x[0]**2)**2\n\nres = minimize(rosenbrock, x0=[0, 0], method='BFGS')\nprint(res.x)   # ≈ [1, 1]\n```\n\n### Root finding\n\n```python\nfrom scipy.optimize import brentq, fsolve\n\n# brentq: 1D, needs bracket where f changes sign\nroot = brentq(lambda x: x**2 - 2, 1, 2)   # √2 ≈ 1.4142\n\n# fsolve: multivariate Newton\nimport numpy as np\ndef equations(vars):\n    x, y = vars\n    return [x + y - 3, x - y - 1]\nfsolve(equations, [0, 0])   # [2, 1]\n```\n\n### Constraints & bounds\n\n```python\nfrom scipy.optimize import minimize, LinearConstraint\n\ncons = {'type': 'ineq', 'fun': lambda x: x[0] - 1}  # x[0] >= 1\nbounds = [(0, None), (0, None)]                       # x, y >= 0\n\nres = minimize(f, x0=[2, 2], constraints=cons, bounds=bounds)\n```\n\n### Practical tips\n\n- Always verify convergence: `res.success` and `res.message`\n- Provide analytical gradients (`jac=`) when possible — much faster\n- For non-smooth objectives, try derivative-free methods (`method='Nelder-Mead'`)\n",
+      "challenges": [
+        {
+          "id": "py-5-c1",
+          "title": "Find the Minimum",
+          "description": "Implement `find_minimum()` that uses `minimize_scalar` to find the **x-value** minimising\n\n$$f(x) = x^2 - 4x + 4 = (x - 2)^2$$\n\nReturn the minimiser `x` (not the function value).",
+          "starterCode": "from scipy.optimize import minimize_scalar\n\ndef find_minimum():\n    # Define f(x) = x^2 - 4*x + 4 and minimise it.\n    pass\n",
+          "testCases": [
+            {
+              "id": "py-5-c1-t1",
+              "description": "Minimum is at x = 2",
+              "appendCode": "print(round(find_minimum(), 4))",
+              "expectedOutput": "2.0",
+              "isHidden": false
+            }
+          ]
+        },
+        {
+          "id": "py-5-c2",
+          "title": "Find √2 via Root Finding",
+          "description": "Implement `find_sqrt2()` that uses `brentq` to find the positive root of\n\n$$g(x) = x^2 - 2$$\n\nwhich equals √2. Use the bracket `[1, 2]`.",
+          "starterCode": "from scipy.optimize import brentq\n\ndef find_sqrt2():\n    # Your code here\n    pass\n",
+          "testCases": [
+            {
+              "id": "py-5-c2-t1",
+              "description": "Result ≈ 1.414214 (6 decimal places)",
+              "appendCode": "print(round(find_sqrt2(), 6))",
+              "expectedOutput": "1.414214",
+              "isHidden": false
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
