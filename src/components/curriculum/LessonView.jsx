@@ -27,13 +27,20 @@ export default function LessonView({
   trackId,
   trackColor,
   language,
+  initialChallengeId,
   isLessonComplete,
   isChallengeComplete,
   getTestResults,
   onCompleteChallenge,
   onCompleteLesson,
 }) {
-  const [selectedChallengeIdx, setSelectedChallengeIdx] = useState(0);
+  const [selectedChallengeIdx, setSelectedChallengeIdx] = useState(() => {
+    if (initialChallengeId) {
+      const idx = lesson.challenges.findIndex((c) => c.id === initialChallengeId);
+      return idx >= 0 ? idx : 0;
+    }
+    return 0;
+  });
   const [code, setCode] = useState(() => lesson.challenges[0]?.starterCode ?? lesson.starterCode);
   const [testResults, setTestResults] = useState({}); // { challengeId: result[] }
   const [isTestRunning, setIsTestRunning] = useState(false);

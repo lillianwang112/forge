@@ -182,7 +182,7 @@ export default function Sidebar({ collapsed, onToggle }) {
         <SidebarNavLink to="/learn/shared" icon="⚡" label="Shared Skills" dot="var(--accent-blue)" collapsed={collapsed} />
 
         <NavSection label="Practice" collapsed={collapsed} />
-        <SidebarNavLink to="/challenge/1" icon="⚔️" label="Challenges" collapsed={collapsed} />
+        <SidebarNavLink to="/challenges" icon="⚔️" label="Challenges" collapsed={collapsed} />
         <SidebarNavLink to="/review" icon="🗂️" label="Review (SRS)" collapsed={collapsed} badge={dueCount} />
 
         <div
