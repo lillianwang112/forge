@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Forge — Offline</title>
+  <style>
+    :root {
+      --bg: #0a0e14;
+      --surface: #161b22;
+      --border: #30363d;
+      --text: #e6edf3;
+      --muted: #8b949e;
+      --green: #3fb950;
+      --blue: #58a6ff;
+      --orange: #d29922;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'DM Sans', system-ui, sans-serif;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+    }
+    .card {
+      max-width: 480px;
+      width: 100%;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 40px 36px;
+      text-align: center;
+    }
+    .icon { font-size: 3rem; margin-bottom: 20px; }
+    h1 {
+      font-size: 1.5rem;
+      font-weight: 600;
+      margin-bottom: 12px;
+      letter-spacing: -0.01em;
+    }
+    p { color: var(--muted); font-size: 0.9rem; line-height: 1.6; margin-bottom: 8px; }
+    .status-list {
+      list-style: none;
+      margin: 24px 0;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .status-list li {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 14px;
+      border-radius: 8px;
+      background: #0d1117;
+      border: 1px solid var(--border);
+      font-size: 0.85rem;
+      text-align: left;
+    }
+    .dot {
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+    .dot-green { background: var(--green); }
+    .dot-orange { background: var(--orange); }
+    button {
+      margin-top: 8px;
+      padding: 10px 24px;
+      background: var(--blue);
+      color: #000;
+      border: none;
+      border-radius: 8px;
+      font-size: 0.88rem;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    button:hover { background: #79c0ff; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <div class="icon">📡</div>
+    <h1>Forge is offline</h1>
+    <p>You're not connected to the internet. Here's what still works:</p>
+    <ul class="status-list">
+      <li>
+        <span class="dot dot-green"></span>
+        <span><strong>Python exercises</strong> — Pyodide runs fully in your browser</span>
+      </li>
+      <li>
+        <span class="dot dot-orange"></span>
+        <span><strong>Julia exercises</strong> — requires internet (cloud execution)</span>
+      </li>
+      <li>
+        <span class="dot dot-green"></span>
+        <span><strong>SRS review</strong> — all concept cards work offline</span>
+      </li>
+      <li>
+        <span class="dot dot-orange"></span>
+        <span><strong>AI feedback</strong> — requires internet (Puter.js)</span>
+      </li>
+    </ul>
+    <button onclick="window.location.reload()">Try again</button>
+  </div>
+</body>
+</html>

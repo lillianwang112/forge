@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="A code learning environment for Python & Julia scientific computing" />
+    <meta name="theme-color" content="#0a0e14" />
+    <link rel="icon" type="image/svg+xml" href="/forge/forge-icon.svg" />
+    <title>Forge</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,300;1,9..40,400&family=JetBrains+Mono:ital,wght@0,300;0,400;0,500;1,300;1,400&display=swap"
+      rel="stylesheet"
+    />
+    <script type="module" crossorigin src="/forge/assets/index-C24gxiPv.js"></script>
+    <link rel="stylesheet" crossorigin href="/forge/assets/index-C1xYuyXS.css">
+  <link rel="manifest" href="/forge/manifest.webmanifest"><script id="vite-plugin-pwa:register-sw" src="/forge/registerSW.js"></script></head>
+  <body>
+    <div id="root"></div>
+    <!-- SPA routing: restore path after 404.html redirect -->
+    <script>
+      (function () {
+        var redirect = sessionStorage.getItem('spa-redirect');
+        if (redirect) {
+          sessionStorage.removeItem('spa-redirect');
+          var base = '/forge';
+          var path = redirect.startsWith(base) ? redirect.slice(base.length) : redirect;
+          window.history.replaceState(null, '', base + (path || '/'));
+        }
+      })();
+    </script>
+  </body>
+</html>
