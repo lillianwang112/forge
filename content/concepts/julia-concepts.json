@@ -1,0 +1,162 @@
+[
+  {
+    "conceptId": "ju-1-indexed",
+    "front": "What makes Julia arrays different from Python's?",
+    "back": "- **1-indexed**: `v[1]` is the first element (not `v[0]`)\n- **Column-major**: matrices are stored column by column (like Fortran/MATLAB, unlike NumPy)\n- **Typed**: `Vector{Float64}` not just a generic list\n- `v[end]` is the last element\n- Slices `v[2:4]` are **inclusive** on both ends",
+    "category": "Arrays",
+    "track": "julia",
+    "relatedLessons": ["ju-1", "ju-2"]
+  },
+  {
+    "conceptId": "ju-multiple-dispatch",
+    "front": "What is multiple dispatch?",
+    "back": "Method selection based on the types of **all** arguments (not just the first).\n\n```julia\ncollide(::Sphere, ::Sphere) = \"sphere-sphere\"\ncollide(::Sphere, ::Box)    = \"sphere-box\"\ncollide(::Box,    ::Box)    = \"box-box\"\n\ncollide(Sphere(), Box())   # \"sphere-box\"\n```\n\nContrasted with OO dispatch which only uses the first argument (the object).",
+    "category": "Type System",
+    "track": "julia",
+    "relatedLessons": ["ju-5"]
+  },
+  {
+    "conceptId": "ju-broadcast-dot",
+    "front": "What does the dot syntax `f.(x)` do?",
+    "back": "**Broadcasting**: applies `f` element-wise to every element of `x`. Works for any function or operator.\n\n```julia\nv = [1.0, 4.0, 9.0]\nsqrt.(v)      # [1.0, 2.0, 3.0]\nv .^ 2        # [1.0, 16.0, 81.0]\nsin.(v) .+ 1  # element-wise sin then +1\n\n# @. macro broadcasts all operators\n@. sqrt(v) + 1\n```",
+    "category": "Arrays",
+    "track": "julia",
+    "relatedLessons": ["ju-2"]
+  },
+  {
+    "conceptId": "ju-bang-convention",
+    "front": "What does the `!` convention mean in Julia?",
+    "back": "A function ending in `!` **mutates its first argument** in-place.\n\n```julia\npush!(v, 4)     # appends to v in-place\nsort!(v)        # sorts v in-place\nfill!(A, 0)     # sets all elements of A to 0\n\n# vs non-mutating:\nv2 = sort(v)    # returns new sorted array, v unchanged\n```\n\nThis is a convention — not enforced by the language, but universally followed.",
+    "category": "Conventions",
+    "track": "julia",
+    "relatedLessons": ["ju-1", "ju-2"]
+  },
+  {
+    "conceptId": "ju-type-stability",
+    "front": "Why avoid global variables in Julia?",
+    "back": "Globals are **type-unstable**: the compiler doesn't know their type at compile time (they could change). This prevents LLVM from generating efficient specialised code.\n\n```julia\nx = 1.0  # global\nf() = x + 1  # compiler must emit slow generic code\n\n# Fix: pass as argument\nf(x) = x + 1  # fast — type known from call site\n# Or: const x = 1.0  (constant globals are OK)\n```",
+    "category": "Performance",
+    "track": "julia",
+    "relatedLessons": ["ju-4"]
+  },
+  {
+    "conceptId": "ju-abstract-type",
+    "front": "Difference between abstract and concrete types?",
+    "back": "**Abstract types** define interfaces; they cannot be instantiated.\n**Concrete types** (structs) hold data; they can be instantiated.\n\n```julia\nabstract type Animal end\n\nstruct Dog <: Animal\n    name::String\nend\n\n# Can't do:  Animal()   → error\n# Can do:    Dog(\"Rex\") → Dog(\"Rex\")\n```\n\nAbstract types enable writing generic methods that work for all subtypes.",
+    "category": "Type System",
+    "track": "julia",
+    "relatedLessons": ["ju-4"]
+  },
+  {
+    "conceptId": "ju-time-macro",
+    "front": "How do you profile code in Julia?",
+    "back": "```julia\n@time f()           # prints time + allocations\n@btime f()          # BenchmarkTools (more accurate)\n@profile f()        # statistical profiler\n\n# @time output:\n# 0.003241 seconds (8 allocations: 512 bytes)\n```\n\nKey metric: **allocations** indicate heap pressure. Zero-allocation hot loops are idiomatic Julia.",
+    "category": "Performance",
+    "track": "julia",
+    "relatedLessons": ["ju-1"]
+  },
+  {
+    "conceptId": "ju-for-syntax",
+    "front": "Julia `for` loop syntax?",
+    "back": "```julia\n# Range (inclusive both ends)\nfor i in 1:5\n    println(i)\nend\n\n# Array\nfor x in [10, 20, 30]\n    println(x)\nend\n\n# Enumerate (1-based)\nfor (i, x) in enumerate([\"a\", \"b\", \"c\"])\n    println(i, x)  # 1 a, 2 b, 3 c\nend\n\n# Nested (compact syntax)\nfor i in 1:3, j in 1:3\n    @show i, j\nend\n```",
+    "category": "Control Flow",
+    "track": "julia",
+    "relatedLessons": ["ju-3"]
+  },
+  {
+    "conceptId": "ju-struct-vs-mutable",
+    "front": "Struct vs mutable struct?",
+    "back": "**`struct`** is immutable — fields cannot be changed after creation. The compiler can often allocate it on the stack.\n\n**`mutable struct`** allows field mutation but forces heap allocation.\n\n```julia\nstruct Point      mutable struct Particle\n    x::Float64       x::Float64\n    y::Float64       y::Float64\nend               end\n\np = Point(1.0, 2.0)\np.x = 3.0  # ERROR — immutable!\n```\n\nPrefer immutable structs for performance-critical code.",
+    "category": "Type System",
+    "track": "julia",
+    "relatedLessons": ["ju-4"]
+  },
+  {
+    "conceptId": "ju-pipe",
+    "front": "What does the `|>` operator do?",
+    "back": "The pipe operator passes the left-hand value as the **first argument** of the right-hand function.\n\n```julia\nx = [3, 1, 4, 1, 5, 9]\nx |> sort |> unique |> sum   # 22\n\n# Equivalent:\nsum(unique(sort(x)))\n\n# With anonymous function:\n1:10 |> (x -> x.^2) |> sum  # 385\n```",
+    "category": "Syntax",
+    "track": "julia",
+    "relatedLessons": ["ju-3"]
+  },
+  {
+    "conceptId": "ju-comprehension",
+    "front": "Julia array comprehension syntax?",
+    "back": "```julia\n[x^2 for x in 1:5]              # [1, 4, 9, 16, 25]\n[x for x in 1:10 if x % 2 == 0] # [2, 4, 6, 8, 10]\n[i+j for i in 1:3, j in 1:3]    # 3×3 matrix\n\n# Generator (lazy):\nsum(x^2 for x in 1:100)\n\n# Dict comprehension:\nDict(x => x^2 for x in 1:5)\n```",
+    "category": "Syntax",
+    "track": "julia",
+    "relatedLessons": ["ju-2", "ju-3"]
+  },
+  {
+    "conceptId": "ju-interpolation",
+    "front": "Julia string interpolation syntax?",
+    "back": "Use `$variable` or `$(expression)` inside a string.\n\n```julia\nname = \"ZERO Lab\"\nx = 3.14\n\nprintln(\"Hello, $name!\")         # Hello, ZERO Lab!\nprintln(\"π ≈ $(round(x, digits=2))\")  # π ≈ 3.14\n\n# Literal $: escape with \\$\nprintln(\"Cost: \\$$(9.99)\")\n```\n\nAlways use `$(expr)` when the expression is more than a simple variable.",
+    "category": "Syntax",
+    "track": "julia",
+    "relatedLessons": ["ju-1"]
+  },
+  {
+    "conceptId": "ju-typeof",
+    "front": "Julia type introspection functions?",
+    "back": "```julia\ntypeof(3.14)        # Float64\ntypeof([1,2,3])     # Vector{Int64}\nsupertype(Float64)  # AbstractFloat\nsubtypes(Integer)   # [Bool, Signed, Unsigned]\nisa(42, Integer)    # true\n\n# Parametric type inspection\neltype([1.0, 2.0])  # Float64\nndims([1 2; 3 4])   # 2\nsize([1 2; 3 4])    # (2, 2)\n```",
+    "category": "Type System",
+    "track": "julia",
+    "relatedLessons": ["ju-4"]
+  },
+  {
+    "conceptId": "ju-parametric",
+    "front": "What are parametric types in Julia?",
+    "back": "Types parameterised by other types. Enables generic containers without sacrificing performance.\n\n```julia\nstruct Stack{T}\n    data::Vector{T}\nend\n\npush!(s::Stack{T}, x::T) where T = push!(s.data, x)\n\ns = Stack{Int}([])\npush!(s, 42)  # type-safe, compiled specialisation\n\n# Built-in examples:\nVector{Float64}  # same as Array{Float64,1}\nDict{String, Int}\n```",
+    "category": "Type System",
+    "track": "julia",
+    "relatedLessons": ["ju-4", "ju-5"]
+  },
+  {
+    "conceptId": "ju-multiple-return",
+    "front": "How do you return multiple values from a Julia function?",
+    "back": "Return a tuple — Julia automatically unpacks it:\n\n```julia\nfunction minmax(v)\n    return minimum(v), maximum(v)  # returns a Tuple\nend\n\nlo, hi = minmax([3, 1, 4, 1, 5])\nprintln(lo, \" \", hi)  # 1 5\n\n# Explicit tuple\nfunction stats(v)\n    (mean=sum(v)/length(v), std=std(v))\nend\ns = stats([1,2,3])\ns.mean  # 2.0\n```",
+    "category": "Functions",
+    "track": "julia",
+    "relatedLessons": ["ju-3"]
+  },
+  {
+    "conceptId": "ju-broadcast-macro",
+    "front": "What does the `@.` macro do?",
+    "back": "Broadcasts **every** operation in the expression — so you don't need to add `.` to every operator.\n\n```julia\n# Without @.\ny = sin.(x) .+ cos.(x) .* x.^2 .- 1\n\n# With @. (equivalent):\n@. y = sin(x) + cos(x) * x^2 - 1\n```\n\n`@.` is cleaner for complex vectorised expressions. It's a compile-time transformation.",
+    "category": "Arrays",
+    "track": "julia",
+    "relatedLessons": ["ju-2"]
+  },
+  {
+    "conceptId": "ju-using-import",
+    "front": "Difference between `using` and `import` in Julia?",
+    "back": "```julia\nusing LinearAlgebra         # imports all exported names\nnorm([1,2,3])               # available directly\n\nimport LinearAlgebra        # imports module, not names\nLinearAlgebra.norm([1,2,3]) # must qualify\n\nimport LinearAlgebra: norm  # imports only norm\nnorm([1,2,3])               # available directly\n                            # and can be extended\n```\n\nUse `import Module: f` when you want to add methods to `f` (extend it).",
+    "category": "Modules",
+    "track": "julia",
+    "relatedLessons": ["ju-1"]
+  },
+  {
+    "conceptId": "ju-column-major",
+    "front": "Why is Julia column-major and why does it matter?",
+    "back": "Julia stores matrix columns contiguously in memory (like Fortran). Iterating **column by column** is cache-friendly; row-by-row is slow.\n\n```julia\nA = rand(1000, 1000)\n\n# Fast: column-major access\n@time for j in 1:1000, i in 1:1000; A[i,j]; end\n\n# Slow: row-major access\n@time for i in 1:1000, j in 1:1000; A[i,j]; end\n```\n\nContrasted with NumPy which is row-major (C order) by default.",
+    "category": "Performance",
+    "track": "julia",
+    "relatedLessons": ["ju-2"]
+  },
+  {
+    "conceptId": "ju-where-clause",
+    "front": "What does the `where` clause do in Julia?",
+    "back": "Introduces type parameters for generic functions or types.\n\n```julia\n# Method that works for any numeric vector\nfunction dot(u::Vector{T}, v::Vector{T}) where T <: Number\n    sum(u[i]*v[i] for i in eachindex(u))\nend\n\n# Type constraints\nf(x::T) where T <: AbstractFloat = sqrt(x)\nf(x::T) where T <: Integer       = x * x\n```\n\nThe compiler generates a specialised method for each `T` at first use.",
+    "category": "Type System",
+    "track": "julia",
+    "relatedLessons": ["ju-5"]
+  },
+  {
+    "conceptId": "ju-dispatch-methods",
+    "front": "How do you inspect all methods of a Julia function?",
+    "back": "```julia\nmethods(+)        # all methods of addition (100+)\nmethods(sin)      # methods of sin\nmethods(myFunc)   # your custom function\n\n# Count methods:\nlength(methods(+))   # e.g. 207\n\n# Which method will be called?\n@which 1.0 + 2.0    # shows the specific method + file:line\n@which [1] + [2]    # different method!\n```",
+    "category": "Type System",
+    "track": "julia",
+    "relatedLessons": ["ju-5"]
+  }
+]

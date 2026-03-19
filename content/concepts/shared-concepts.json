@@ -1,0 +1,82 @@
+[
+  {
+    "conceptId": "sh-feature-branch",
+    "front": "What is a feature branch workflow?",
+    "back": "Create a new branch per feature or fix → make commits → open a pull request → review → merge → delete branch.\n\n```bash\ngit checkout -b feature/lqr-controller\n# make commits...\ngit push origin feature/lqr-controller\n# open PR on GitHub\n# after merge:\ngit branch -d feature/lqr-controller\n```\n\nKeeps `main` always in a deployable/reproducible state.",
+    "category": "Git",
+    "track": "shared",
+    "relatedLessons": ["sh-1"]
+  },
+  {
+    "conceptId": "sh-conventional-commit",
+    "front": "Conventional commit format?",
+    "back": "`type(scope): description`\n\nTypes: `feat`, `fix`, `refactor`, `docs`, `test`, `chore`, `perf`\n\n```\nfeat(solver): add Runge-Kutta 4 integrator\nfix(jacobian): correct sign error in transpose\nrefactor(planner): extract trajectory utilities\ndocs(readme): add installation instructions\ntest(lqr): add stability margin test cases\n```\n\nEnables automated changelogs and semantic versioning.",
+    "category": "Git",
+    "track": "shared",
+    "relatedLessons": ["sh-1"]
+  },
+  {
+    "conceptId": "sh-rebase-vs-merge",
+    "front": "Git rebase vs merge — when to use which?",
+    "back": "**Merge** preserves branch history, creates a merge commit:\n```\nA-B-C main\n   \\-D-E feature\n→  A-B-C-M main  (M = merge commit)\n```\n\n**Rebase** replays commits on top of base — linear history:\n```\nA-B-C main\n   \\-D-E feature\n→  A-B-C-D'-E' main\n```\n\n- Use **merge** for public/shared branches\n- Use **rebase** to clean up local feature branches before PR",
+    "category": "Git",
+    "track": "shared",
+    "relatedLessons": ["sh-1"]
+  },
+  {
+    "conceptId": "sh-numpy-docstring",
+    "front": "NumPy docstring format?",
+    "back": "```python\ndef solve(A, b):\n    \"\"\"Solve linear system Ax = b.\n\n    Parameters\n    ----------\n    A : ndarray, shape (n, n)\n        Coefficient matrix.\n    b : ndarray, shape (n,)\n        Right-hand side vector.\n\n    Returns\n    -------\n    x : ndarray, shape (n,)\n        Solution vector.\n\n    Raises\n    ------\n    LinAlgError\n        If A is singular.\n    \"\"\"\n```",
+    "category": "Documentation",
+    "track": "shared",
+    "relatedLessons": ["sh-2"]
+  },
+  {
+    "conceptId": "sh-big-o",
+    "front": "Common Big-O complexities to know?",
+    "back": "| O(1) | hash table lookup |\n|------|-------------------|\n| O(log n) | binary search |\n| O(n) | linear scan |\n| O(n log n) | merge sort / FFT |\n| O(n²) | nested loops, naive matrix ops |\n| O(n³) | matrix multiplication (naive) |\n\nFor scientific computing: NumPy BLAS matrix multiply is O(n³) but with tiny constants. FFT turns O(n²) DFT into O(n log n).",
+    "category": "Algorithms",
+    "track": "shared",
+    "relatedLessons": ["sh-1", "sh-2"]
+  },
+  {
+    "conceptId": "sh-type-hints-python",
+    "front": "Why use Python type hints?",
+    "back": "1. **Documentation** — function signatures are self-documenting\n2. **IDE support** — autocomplete and error highlighting\n3. **Static analysis** — tools like `mypy` catch type errors before runtime\n4. **Runtime checking** — libraries like `beartype` can enforce them\n\n```python\ndef gradient_descent(\n    f: Callable[[np.ndarray], float],\n    x0: np.ndarray,\n    lr: float = 0.01,\n    steps: int = 1000,\n) -> np.ndarray:\n    ...\n```",
+    "category": "Documentation",
+    "track": "shared",
+    "relatedLessons": ["sh-2"]
+  },
+  {
+    "conceptId": "sh-unit-testing",
+    "front": "Key principles of unit testing?",
+    "back": "**FIRST** criteria:\n- **Fast**: tests must run quickly (< seconds)\n- **Isolated**: one concept per test, no shared state\n- **Repeatable**: same result every run (no randomness, no network)\n- **Self-validating**: pass/fail without human interpretation\n- **Timely**: written alongside (or before) the code\n\n```python\ndef test_l2_norm_3_4_5():\n    v = np.array([3.0, 4.0])\n    assert abs(l2_norm(v) - 5.0) < 1e-10\n```",
+    "category": "Engineering",
+    "track": "shared",
+    "relatedLessons": ["sh-2"]
+  },
+  {
+    "conceptId": "sh-gitignore",
+    "front": "What belongs in `.gitignore` for a Python/Julia project?",
+    "back": "```\n# Python\n__pycache__/\n*.pyc\n*.pyo\n.venv/\ndist/\nbuild/\n*.egg-info/\n.ipynb_checkpoints/\n\n# Julia\n*.ji\n.julia/\n\n# Data / outputs (regenerate from scripts!)\ndata/raw/\nresults/\n*.h5\n*.pkl\n*.csv\n\n# Environment\n.env\nsecrets.json\n```\n\n**Rule**: commit code, not derived artifacts. Data can be regenerated; secrets must stay local.",
+    "category": "Git",
+    "track": "shared",
+    "relatedLessons": ["sh-1"]
+  },
+  {
+    "conceptId": "sh-readme",
+    "front": "What sections should a research README include?",
+    "back": "1. **Title + one-liner** — what does this project do?\n2. **Badges** — CI status, coverage, license\n3. **Installation** — exact commands to reproduce environment\n4. **Usage** — minimal working example\n5. **Project structure** — brief map of key files\n6. **Reproducing results** — how to re-run experiments\n7. **Citation** — BibTeX if published\n8. **License**\n\nAim for a new collaborator to go from clone → first result in under 10 minutes.",
+    "category": "Documentation",
+    "track": "shared",
+    "relatedLessons": ["sh-2"]
+  },
+  {
+    "conceptId": "sh-code-review",
+    "front": "What to look for in a code review?",
+    "back": "**Correctness** — does it do what the author thinks? Edge cases?\n\n**Clarity** — can you understand it in 5 minutes? Variable names?\n\n**Tests** — are new behaviours covered? Regression tests for bugs?\n\n**Performance** — any O(n²) where O(n log n) exists? Unnecessary allocations?\n\n**Security** — user input validated? No hardcoded secrets?\n\n**Style** — consistent with project conventions?\n\nBe kind: review code, not the person. Suggest, don't demand.",
+    "category": "Engineering",
+    "track": "shared",
+    "relatedLessons": ["sh-1", "sh-2"]
+  }
+]

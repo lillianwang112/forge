@@ -1,0 +1,162 @@
+[
+  {
+    "conceptId": "py-enumerate",
+    "front": "What does `enumerate()` return?",
+    "back": "An iterator of `(index, value)` tuples. Default start index is 0.\n\n```python\nfor i, v in enumerate(['a', 'b', 'c']):\n    print(i, v)  # 0 a, 1 b, 2 c\n```",
+    "category": "Built-ins",
+    "track": "python",
+    "relatedLessons": ["py-1"]
+  },
+  {
+    "conceptId": "py-list-comprehension",
+    "front": "List comprehension syntax?",
+    "back": "`[expression for item in iterable if condition]`\n\n```python\nsquares = [x**2 for x in range(10) if x % 2 == 0]\n# [0, 4, 16, 36, 64]\n```",
+    "category": "Syntax",
+    "track": "python",
+    "relatedLessons": ["py-1", "py-3"]
+  },
+  {
+    "conceptId": "py-args-kwargs",
+    "front": "How do `*args` and `**kwargs` work?",
+    "back": "`*args` collects extra positional arguments as a **tuple**.\n`**kwargs` collects extra keyword arguments as a **dict**.\n\n```python\ndef f(*args, **kwargs):\n    print(args)    # (1, 2, 3)\n    print(kwargs)  # {'x': 4}\nf(1, 2, 3, x=4)\n```",
+    "category": "Functions",
+    "track": "python",
+    "relatedLessons": ["py-1"]
+  },
+  {
+    "conceptId": "py-walrus",
+    "front": "What is the walrus operator `:=`?",
+    "back": "Assigns and returns a value inside an expression (Python 3.8+).\n\n```python\nwhile chunk := f.read(8192):\n    process(chunk)\n\nif (n := len(data)) > 10:\n    print(f'Too long: {n}')\n```",
+    "category": "Syntax",
+    "track": "python",
+    "relatedLessons": ["py-1"]
+  },
+  {
+    "conceptId": "py-list-vs-tuple",
+    "front": "Difference between `list` and `tuple`?",
+    "back": "**Lists** are mutable (can be changed after creation).\n**Tuples** are immutable (cannot be changed) and hashable.\n\n- Use tuples for fixed collections (e.g. coordinates, RGB)\n- Tuples can be dict keys; lists cannot\n- Tuples are slightly faster to create and iterate",
+    "category": "Data Structures",
+    "track": "python",
+    "relatedLessons": ["py-1"]
+  },
+  {
+    "conceptId": "py-dict-get",
+    "front": "Difference between `d[key]` and `d.get(key)`?",
+    "back": "`d[key]` raises `KeyError` if key is missing.\n`d.get(key)` returns `None` (or a default) if key is missing.\n\n```python\nd = {'a': 1}\nprint(d.get('b', 0))  # 0  (safe)\nprint(d['b'])          # KeyError!\n```",
+    "category": "Data Structures",
+    "track": "python",
+    "relatedLessons": ["py-1"]
+  },
+  {
+    "conceptId": "py-set-ops",
+    "front": "Python set operations: union, intersection, difference?",
+    "back": "```python\na = {1, 2, 3}\nb = {2, 3, 4}\n\na | b   # {1, 2, 3, 4}  union\na & b   # {2, 3}        intersection\na - b   # {1}           difference\na ^ b   # {1, 4}        symmetric difference\n```",
+    "category": "Data Structures",
+    "track": "python",
+    "relatedLessons": ["py-1"]
+  },
+  {
+    "conceptId": "py-generator",
+    "front": "What is a generator expression?",
+    "back": "Like a list comprehension but **lazy** — values are produced one at a time, not all at once. Uses `()` instead of `[]`.\n\n```python\ngen = (x**2 for x in range(1_000_000))\nnext(gen)  # 0 — computes on demand\nsum(gen)   # no intermediate list in memory\n```",
+    "category": "Iteration",
+    "track": "python",
+    "relatedLessons": ["py-1"]
+  },
+  {
+    "conceptId": "py-context-manager",
+    "front": "What does the `with` statement do?",
+    "back": "Calls `__enter__` on entry and **guarantees** `__exit__` on exit (even if an exception is raised).\n\n```python\nwith open('data.txt') as f:\n    data = f.read()\n# f is automatically closed here\n```\n\nAlso used for: locks, database transactions, temporary directories.",
+    "category": "Syntax",
+    "track": "python",
+    "relatedLessons": ["py-1"]
+  },
+  {
+    "conceptId": "py-exception",
+    "front": "How does `try/except/finally` work?",
+    "back": "```python\ntry:\n    risky()\nexcept ValueError as e:\n    handle(e)\nexcept (TypeError, KeyError):\n    handle_multi()\nelse:\n    # runs if no exception was raised\n    success()\nfinally:\n    # ALWAYS runs (cleanup)\n    cleanup()\n```",
+    "category": "Error Handling",
+    "track": "python",
+    "relatedLessons": ["py-1"]
+  },
+  {
+    "conceptId": "py-lambda",
+    "front": "What is a lambda function?",
+    "back": "An anonymous single-expression function.\n\n```python\ndouble = lambda x: x * 2\nadd    = lambda x, y: x + y\n\nsorted_data = sorted(items, key=lambda x: x.score)\n```\n\nEquivalent to a `def` with one `return` line. Prefer named functions for anything complex.",
+    "category": "Functions",
+    "track": "python",
+    "relatedLessons": ["py-1"]
+  },
+  {
+    "conceptId": "py-sorted-key",
+    "front": "How does the `key` parameter of `sorted()` work?",
+    "back": "A function applied to each element before comparison.\n\n```python\nwords = ['banana', 'fig', 'apple']\nsorted(words, key=len)  # ['fig', 'apple', 'banana']\n\npeople = [{'name': 'Bob', 'age': 30}, {'name': 'Ann', 'age': 25}]\nsorted(people, key=lambda p: p['age'])  # Ann, Bob\n```",
+    "category": "Built-ins",
+    "track": "python",
+    "relatedLessons": ["py-1"]
+  },
+  {
+    "conceptId": "py-zip",
+    "front": "What does `zip()` do?",
+    "back": "Pairs elements from multiple iterables into tuples. Stops at the shortest.\n\n```python\nnames  = ['Alice', 'Bob']\nscores = [95, 87]\n\nfor name, score in zip(names, scores):\n    print(f'{name}: {score}')\n\n# Convert two lists to a dict:\nd = dict(zip(names, scores))  # {'Alice': 95, 'Bob': 87}\n```",
+    "category": "Built-ins",
+    "track": "python",
+    "relatedLessons": ["py-1"]
+  },
+  {
+    "conceptId": "py-decorator",
+    "front": "What does the `@decorator` syntax do?",
+    "back": "Wraps a function by passing it to another function. `@f` is sugar for `func = f(func)`.\n\n```python\ndef timer(func):\n    def wrapper(*args, **kwargs):\n        t = time.time()\n        result = func(*args, **kwargs)\n        print(f'Took {time.time()-t:.3f}s')\n        return result\n    return wrapper\n\n@timer\ndef expensive(): ...\n```",
+    "category": "Functions",
+    "track": "python",
+    "relatedLessons": ["py-1"]
+  },
+  {
+    "conceptId": "py-numpy-create",
+    "front": "Four ways to create a NumPy array?",
+    "back": "```python\nnp.array([1, 2, 3])         # from list\nnp.zeros((3, 4))            # 3×4 matrix of 0.0\nnp.ones(5)                  # [1. 1. 1. 1. 1.]\nnp.linspace(0, 1, 100)      # 100 evenly-spaced points\nnp.arange(0, 10, 2)         # [0 2 4 6 8]\nnp.eye(3)                   # 3×3 identity matrix\nnp.random.rand(2, 3)        # 2×3 uniform [0,1)\n```",
+    "category": "NumPy",
+    "track": "python",
+    "relatedLessons": ["py-2"]
+  },
+  {
+    "conceptId": "py-numpy-broadcasting",
+    "front": "NumPy broadcasting rules?",
+    "back": "Two dimensions are **compatible** if they are equal or one of them is 1. Arrays are compared from the trailing dimension.\n\n```python\n# (3,4) + (4,) → broadcasts to (3,4)\nA = np.ones((3, 4))\nv = np.array([1, 2, 3, 4])\n(A + v).shape   # (3, 4)\n\n# (3,1) + (1,4) → (3,4)\n```",
+    "category": "NumPy",
+    "track": "python",
+    "relatedLessons": ["py-2", "py-3"]
+  },
+  {
+    "conceptId": "py-scipy-minimize",
+    "front": "`scipy.optimize.minimize` signature?",
+    "back": "```python\nfrom scipy.optimize import minimize\n\nresult = minimize(\n    fun,          # objective f(x)\n    x0,           # initial guess\n    method='BFGS',# algorithm\n    jac=None,     # gradient (optional)\n    bounds=None,  # [(lo,hi), ...]\n    constraints=None,\n)\nresult.x    # solution\nresult.fun  # objective value\nresult.success  # bool\n```",
+    "category": "SciPy",
+    "track": "python",
+    "relatedLessons": ["py-5"]
+  },
+  {
+    "conceptId": "py-fstring",
+    "front": "f-string formatting mini-language?",
+    "back": "```python\nx = 3.14159\nf'{x:.2f}'      # '3.14'   (2 decimal places)\nf'{x:8.3f}'     # '   3.142' (width 8)\nf'{1000:,}'     # '1,000'  (thousands separator)\nf'{0.5:.0%}'    # '50%'    (percentage)\nf'{42:04d}'     # '0042'   (zero-padded)\nf'{\"hello\":>10}'# '     hello' (right-align)\n```",
+    "category": "Syntax",
+    "track": "python",
+    "relatedLessons": ["py-1"]
+  },
+  {
+    "conceptId": "py-type-hints",
+    "front": "Python type hint syntax?",
+    "back": "```python\ndef greet(name: str, times: int = 1) -> str:\n    return name * times\n\n# Collections\nfrom typing import List, Dict, Optional, Tuple\ndef process(data: List[float]) -> Dict[str, float]: ...\ndef maybe(x: Optional[int] = None) -> None: ...\n\n# Python 3.9+ built-in generics\ndef fn(x: list[int]) -> dict[str, float]: ...\n```",
+    "category": "Syntax",
+    "track": "python",
+    "relatedLessons": ["sh-2"]
+  },
+  {
+    "conceptId": "py-numpy-indexing",
+    "front": "NumPy boolean and fancy indexing?",
+    "back": "```python\nv = np.array([10, 20, 30, 40, 50])\n\n# Boolean indexing\nv[v > 25]          # [30 40 50]\nv[v % 20 == 0]     # [20 40]\n\n# Fancy indexing (integer array)\nv[[0, 2, 4]]       # [10 30 50]\n\n# 2D\nA = np.arange(12).reshape(3, 4)\nA[1:, ::2]         # rows 1+, every other col\n```",
+    "category": "NumPy",
+    "track": "python",
+    "relatedLessons": ["py-2", "py-3"]
+  }
+]

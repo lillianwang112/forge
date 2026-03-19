@@ -2,6 +2,7 @@ import { useParams, Link } from 'react-router-dom';
 import { getTrack, getLesson } from '../curriculum/index.js';
 import { useProgress } from '../hooks/useProgress.js';
 import LessonView from '../components/curriculum/LessonView.jsx';
+import { unlockCardsForLesson } from '../srs/conceptStore.js';
 
 export default function LessonPage() {
   const { track: trackId, lessonId } = useParams();
@@ -34,6 +35,8 @@ export default function LessonPage() {
       });
       if (allDone) {
         await completeLesson(lessonId);
+        // Unlock SRS cards for this lesson
+        unlockCardsForLesson(lessonId).catch(() => {});
       }
     }
     return allPassed;

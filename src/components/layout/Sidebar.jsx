@@ -1,6 +1,7 @@
-import { NavLink, useLocation } from 'react-router-dom';
+import { NavLink } from 'react-router-dom';
 import { useState, useEffect } from 'react';
-import { getDueCards, getAllProgress } from '../../storage/db';
+import { getAllProgress } from '../../storage/db';
+import { getStats } from '../../srs/conceptStore';
 
 const SIDEBAR_WIDTH = 260;
 const SIDEBAR_COLLAPSED_WIDTH = 48;
@@ -96,11 +97,18 @@ function SidebarNavLink({ to, icon, label, dot, collapsed, badge }) {
                 padding: '1px 6px',
                 flexShrink: 0,
                 fontFamily: 'var(--font-mono)',
+                animation: badge > 10 ? 'sidebar-badge-pulse 1.4s ease-in-out infinite' : 'none',
               }}
             >
               {badge}
             </span>
           )}
+          <style>{`
+            @keyframes sidebar-badge-pulse {
+              0%, 100% { opacity: 1; transform: scale(1); }
+              50%       { opacity: 0.6; transform: scale(1.15); }
+            }
+          `}</style>
         </>
       )}
     </NavLink>
@@ -112,7 +120,7 @@ export default function Sidebar({ collapsed, onToggle }) {
   const [progress, setProgress] = useState({ completed: 0, total: 30 });
 
   useEffect(() => {
-    getDueCards(Date.now()).then((cards) => setDueCount(cards.length)).catch(() => {});
+    getStats().then((s) => setDueCount(s.due)).catch(() => {});
     getAllProgress().then((all) => {
       if (all.length > 0) {
         setProgress({
