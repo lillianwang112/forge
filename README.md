@@ -8,8 +8,6 @@
 ![TailwindCSS](https://img.shields.io/badge/Tailwind-4-06b6d4?logo=tailwindcss&logoColor=white&style=flat-square)
 ![PWA](https://img.shields.io/badge/PWA-ready-5a0fc8?logo=pwa&logoColor=white&style=flat-square)
 
-Built for ZERO Lab internship prep.
-
 ---
 
 ## Features
