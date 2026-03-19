@@ -1,10 +1,11 @@
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import SplitPane from '../components/editor/SplitPane';
 import CodeEditor from '../components/editor/CodeEditor';
 import EditorToolbar from '../components/editor/EditorToolbar';
-import OutputPanel from '../components/editor/OutputPanel';
+import RightPanel from '../components/editor/RightPanel';
 import { useCodeExecution } from '../hooks/useCodeExecution';
+import { useAIFeedback } from '../hooks/useAIFeedback';
 
 // ---------------------------------------------------------------------------
 // Starter code per language
@@ -89,38 +90,35 @@ export default function Dashboard() {
   const [language, setLanguage] = useState('python');
   const [code, setCode] = useState(STARTERS.python);
 
+  // Execution engine
   const { execute, output, isRunning, engineStatus, loadingMessage, clearOutput } =
     useCodeExecution(language);
+
+  // AI feedback engine
+  const { requestReview, feedback, isStreaming, error: aiError, clearFeedback } =
+    useAIFeedback();
 
   const handleLanguageChange = (lang) => {
     setLanguage(lang);
     setCode(STARTERS[lang]);
     clearOutput();
+    clearFeedback();
   };
 
-  const handleRun = () => {
-    execute(code, language);
-  };
+  const handleRun = () => execute(code, language);
+  const handleReset = () => { setCode(STARTERS[language]); clearOutput(); };
 
-  const handleReset = () => {
-    setCode(STARTERS[language]);
-    clearOutput();
-  };
+  const handleAIFeedback = useCallback(() => {
+    requestReview(code, language);
+  }, [code, language, requestReview]);
 
-  const handleAIFeedback = () => {
-    // Phase 4
-    console.info('[Forge] AI Feedback coming in Phase 4');
-  };
+  const handleRetryFeedback = useCallback(() => {
+    requestReview(code, language);
+  }, [code, language, requestReview]);
 
   return (
-    <div
-      style={{
-        display: 'flex',
-        flexDirection: 'column',
-        height: '100%',
-        overflow: 'hidden',
-      }}
-    >
+    <div style={{ display: 'flex', flexDirection: 'column', height: '100%', overflow: 'hidden' }}>
+
       {/* ── Heading ──────────────────────────────────────────────────── */}
       <div
         style={{
@@ -130,25 +128,10 @@ export default function Dashboard() {
           flexShrink: 0,
         }}
       >
-        <h1
-          style={{
-            fontFamily: 'var(--font-display)',
-            fontSize: '1.35rem',
-            color: 'var(--text-primary)',
-            margin: 0,
-            lineHeight: 1.2,
-          }}
-        >
+        <h1 style={{ fontFamily: 'var(--font-display)', fontSize: '1.35rem', color: 'var(--text-primary)', margin: 0, lineHeight: 1.2 }}>
           Sandbox
         </h1>
-        <p
-          style={{
-            fontSize: '0.78rem',
-            color: 'var(--text-muted)',
-            margin: '3px 0 0',
-            fontFamily: 'var(--font-body)',
-          }}
-        >
+        <p style={{ fontSize: '0.78rem', color: 'var(--text-muted)', margin: '3px 0 0', fontFamily: 'var(--font-body)' }}>
           Free-form coding — experiment freely in Python or Julia
         </p>
       </div>
@@ -161,10 +144,11 @@ export default function Dashboard() {
         onReset={handleReset}
         onAIFeedback={handleAIFeedback}
         isRunning={isRunning}
+        isStreaming={isStreaming}
         engineStatus={engineStatus}
       />
 
-      {/* ── Split pane ────────────────────────────────────────────────── */}
+      {/* ── Split pane: editor left, tabbed right ────────────────────── */}
       <div style={{ flex: 1, overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
         <SplitPane
           left={
@@ -176,13 +160,20 @@ export default function Dashboard() {
             />
           }
           right={
-            <OutputPanel
+            <RightPanel
+              // output tab
               output={output}
               isRunning={isRunning}
               engineStatus={engineStatus}
               loadingMessage={loadingMessage}
               language={language}
-              onClear={clearOutput}
+              onClearOutput={clearOutput}
+              // feedback tab
+              feedback={feedback}
+              isStreaming={isStreaming}
+              aiError={aiError}
+              onRetry={handleRetryFeedback}
+              onClearFeedback={clearFeedback}
             />
           }
         />
@@ -197,16 +188,7 @@ export default function Dashboard() {
           flexShrink: 0,
         }}
       >
-        <p
-          style={{
-            fontSize: '0.72rem',
-            color: 'var(--text-muted)',
-            textTransform: 'uppercase',
-            letterSpacing: '0.08em',
-            fontFamily: 'var(--font-mono)',
-            marginBottom: 10,
-          }}
-        >
+        <p style={{ fontSize: '0.72rem', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.08em', fontFamily: 'var(--font-mono)', marginBottom: 10 }}>
           Learning Tracks
         </p>
         <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
@@ -237,59 +219,19 @@ export default function Dashboard() {
             >
               <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 2 }}>
                 <span style={{ fontSize: '1rem' }}>{track.emoji}</span>
-                <span
-                  style={{
-                    fontWeight: 600,
-                    fontSize: '0.85rem',
-                    color: track.color,
-                    fontFamily: 'var(--font-body)',
-                  }}
-                >
+                <span style={{ fontWeight: 600, fontSize: '0.85rem', color: track.color, fontFamily: 'var(--font-body)' }}>
                   {track.name}
                 </span>
               </div>
-              <p
-                style={{
-                  fontSize: '0.72rem',
-                  color: 'var(--text-secondary)',
-                  lineHeight: 1.5,
-                  margin: 0,
-                  fontFamily: 'var(--font-body)',
-                }}
-              >
+              <p style={{ fontSize: '0.72rem', color: 'var(--text-secondary)', lineHeight: 1.5, margin: 0, fontFamily: 'var(--font-body)' }}>
                 {track.description}
               </p>
               <div style={{ marginTop: 8 }}>
-                <div
-                  style={{
-                    display: 'flex',
-                    justifyContent: 'space-between',
-                    fontSize: '0.62rem',
-                    color: 'var(--text-muted)',
-                    fontFamily: 'var(--font-mono)',
-                    marginBottom: 4,
-                  }}
-                >
-                  <span>
-                    {track.completed} / {track.lessons} lessons
-                  </span>
+                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.62rem', color: 'var(--text-muted)', fontFamily: 'var(--font-mono)', marginBottom: 4 }}>
+                  <span>{track.completed} / {track.lessons} lessons</span>
                 </div>
-                <div
-                  style={{
-                    height: 2,
-                    backgroundColor: 'var(--border)',
-                    borderRadius: 1,
-                    overflow: 'hidden',
-                  }}
-                >
-                  <div
-                    style={{
-                      height: '100%',
-                      width: `${(track.completed / track.lessons) * 100}%`,
-                      backgroundColor: track.color,
-                      borderRadius: 1,
-                    }}
-                  />
+                <div style={{ height: 2, backgroundColor: 'var(--border)', borderRadius: 1, overflow: 'hidden' }}>
+                  <div style={{ height: '100%', width: `${(track.completed / track.lessons) * 100}%`, backgroundColor: track.color, borderRadius: 1 }} />
                 </div>
               </div>
             </Link>

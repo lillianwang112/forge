@@ -22,6 +22,7 @@ export default function EditorToolbar({
   onReset,
   onAIFeedback,
   isRunning = false,
+  isStreaming = false,
   engineStatus = 'loading', // 'loading' | 'ready' | 'executing' | 'error'
 }) {
   // Julia is always runnable (cloud API); Python needs to finish loading
@@ -166,17 +167,38 @@ export default function EditorToolbar({
 
       {/* AI Feedback button */}
       <button
-        onClick={onAIFeedback}
+        onClick={!isStreaming ? onAIFeedback : undefined}
+        disabled={isStreaming}
+        title={isStreaming ? 'AI is generating feedback…' : 'Get AI code review'}
         style={{
           ...btnBase,
-          backgroundColor: 'transparent',
-          color: 'var(--accent-blue)',
+          backgroundColor: isStreaming ? 'rgba(88,166,255,0.08)' : 'transparent',
+          color: isStreaming ? 'rgba(88,166,255,0.5)' : 'var(--accent-blue)',
           border: '1px solid rgba(88,166,255,0.35)',
+          cursor: isStreaming ? 'not-allowed' : 'pointer',
+          opacity: isStreaming ? 0.7 : 1,
         }}
-        onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = 'rgba(88,166,255,0.1)')}
-        onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = 'transparent')}
+        onMouseEnter={(e) => { if (!isStreaming) e.currentTarget.style.backgroundColor = 'rgba(88,166,255,0.1)'; }}
+        onMouseLeave={(e) => { if (!isStreaming) e.currentTarget.style.backgroundColor = 'transparent'; }}
       >
-        ✦ AI Feedback
+        {isStreaming ? (
+          <>
+            <span
+              style={{
+                display: 'inline-block',
+                width: 10,
+                height: 10,
+                border: '1.5px solid rgba(88,166,255,0.3)',
+                borderTopColor: 'var(--accent-blue)',
+                borderRadius: '50%',
+                animation: 'spin 0.65s linear infinite',
+              }}
+            />
+            Reviewing…
+          </>
+        ) : (
+          '✦ AI Feedback'
+        )}
       </button>
 
       {/* Run button */}
