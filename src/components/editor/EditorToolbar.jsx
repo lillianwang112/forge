@@ -24,14 +24,20 @@ export default function EditorToolbar({
   isRunning = false,
   engineStatus = 'loading', // 'loading' | 'ready' | 'executing' | 'error'
 }) {
+  // Julia is always runnable (cloud API); Python needs to finish loading
   const canRun = !isRunning && engineStatus === 'ready';
 
   const engineDot = (() => {
-    if (engineStatus === 'ready') return { color: 'var(--accent-green)', pulse: false, title: 'Engine ready' };
-    if (engineStatus === 'executing') return { color: 'var(--accent-orange)', pulse: true, title: 'Executing…' };
-    if (engineStatus === 'error') return { color: 'var(--accent-red)', pulse: false, title: 'Engine error' };
-    return { color: 'var(--accent-blue)', pulse: true, title: 'Loading engine…' };
+    if (engineStatus === 'ready')     return { color: 'var(--accent-green)',  pulse: false, title: 'Engine ready' };
+    if (engineStatus === 'executing') return { color: 'var(--accent-orange)', pulse: true,  title: 'Executing…' };
+    if (engineStatus === 'error')     return { color: 'var(--accent-red)',    pulse: false, title: 'Engine error' };
+    return                                   { color: 'var(--accent-blue)',   pulse: true,  title: 'Loading engine…' };
   })();
+
+  // Runtime badge changes based on selected language
+  const runtimeBadge = language === 'julia'
+    ? { icon: '☁️', label: 'Runs on Judge0', color: 'rgba(163,113,247,0.15)', border: 'rgba(163,113,247,0.3)', text: 'var(--accent-purple)' }
+    : { icon: '🖥️', label: 'Runs in browser', color: 'rgba(88,166,255,0.1)',  border: 'rgba(88,166,255,0.25)', text: 'var(--accent-blue)' };
 
   const btnBase = {
     display: 'inline-flex',
@@ -98,6 +104,25 @@ export default function EditorToolbar({
         </button>
       </div>
 
+      {/* Runtime badge */}
+      <span
+        style={{
+          display: 'inline-flex',
+          alignItems: 'center',
+          gap: 4,
+          fontSize: '0.68rem',
+          color: runtimeBadge.text,
+          backgroundColor: runtimeBadge.color,
+          border: `1px solid ${runtimeBadge.border}`,
+          padding: '2px 8px',
+          borderRadius: 10,
+          fontFamily: 'var(--font-mono)',
+          userSelect: 'none',
+        }}
+      >
+        {runtimeBadge.icon} {runtimeBadge.label}
+      </span>
+
       {/* Engine status indicator */}
       <span
         style={{
@@ -158,7 +183,7 @@ export default function EditorToolbar({
       <button
         onClick={canRun ? onRun : undefined}
         disabled={!canRun}
-        title={!canRun && engineStatus === 'loading' ? 'Waiting for engine to load…' : undefined}
+        title={!canRun && engineStatus === 'loading' ? 'Waiting for Python engine to load…' : undefined}
         style={{
           ...btnBase,
           backgroundColor: canRun
@@ -209,7 +234,7 @@ export default function EditorToolbar({
         @keyframes spin { to { transform: rotate(360deg); } }
         @keyframes toolbar-pulse {
           0%, 100% { opacity: 1; }
-          50% { opacity: 0.3; }
+          50%       { opacity: 0.3; }
         }
       `}</style>
     </div>

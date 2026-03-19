@@ -6,9 +6,11 @@ import LessonPage from './pages/LessonPage';
 import ChallengePage from './pages/ChallengePage';
 import ReviewPage from './pages/ReviewPage';
 import SettingsPage from './pages/SettingsPage';
+import { ToastProvider } from './components/shared/Toast';
 
 export default function App() {
   return (
+    <ToastProvider>
     <BrowserRouter basename="/forge">
       <Routes>
         <Route element={<Shell />}>
@@ -21,5 +23,6 @@ export default function App() {
         </Route>
       </Routes>
     </BrowserRouter>
+    </ToastProvider>
   );
 }

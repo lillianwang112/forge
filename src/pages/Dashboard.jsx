@@ -22,12 +22,21 @@ print(f"Mean: {np.mean(np.sin(x)):.6f}")
 print(f"Max sin(x): {np.max(np.sin(x)):.6f}")
 `,
   julia: `# Welcome to Forge! 🔨
-# Julia execution uses Judge0 (coming in Phase 3)
+# Julia runs via Judge0 CE (cloud-based)
 
 println("Hello from Julia!")
-x = range(0, 2π, length=100)
-println("Generated $(length(x)) points from 0 to 2π")
-println("Max sin(x): $(maximum(sin.(x)))")
+
+# Multiple dispatch example
+greet(name::String) = println("Hello, \$name!")
+greet(n::Int) = println("Hello, person #\$n!")
+
+greet("Forge")
+greet(42)
+
+# Array operations
+x = range(0, 2π, length=100) |> collect
+println("\\nGenerated \$(length(x)) points")
+println("Max sin(x): \$(round(maximum(sin.(x)), digits=6))")
 `,
 };
 
@@ -80,7 +89,7 @@ export default function Dashboard() {
   const [code, setCode] = useState(STARTERS.python);
 
   const { execute, output, isRunning, engineStatus, loadingMessage, clearOutput } =
-    useCodeExecution();
+    useCodeExecution(language);
 
   const handleLanguageChange = (lang) => {
     setLanguage(lang);
@@ -171,6 +180,7 @@ export default function Dashboard() {
               isRunning={isRunning}
               engineStatus={engineStatus}
               loadingMessage={loadingMessage}
+              language={language}
               onClear={clearOutput}
             />
           }
