@@ -71,6 +71,7 @@ self.onmessage = async (e) => {
       self.postMessage({ type: 'error', message: 'Pyodide not initialized', id });
       return;
     }
+    const theme = data.theme ?? 'dark';
 
     // Wire stdout / stderr for this execution
     pyodide.setStdout({
@@ -97,7 +98,7 @@ def _forge_show(*args, **kwargs):
         _fig = plt.figure(_fn)
         _buf = _io.BytesIO()
         _fig.savefig(_buf, format='png', dpi=100, bbox_inches='tight',
-                     facecolor='#0d1117', edgecolor='none')
+                     facecolor='${theme === 'light' ? '#f8fafc' : '#0d1117'}', edgecolor='none')
         _buf.seek(0)
         _forge_figures.append(_b64.b64encode(_buf.read()).decode())
         _buf.close()

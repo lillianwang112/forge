@@ -176,7 +176,8 @@ export class PyodideRunner {
         _result: null,
       });
 
-      this.worker.postMessage({ type: 'execute', code, id });
+      const theme = document.documentElement.getAttribute('data-theme') ?? 'dark';
+      this.worker.postMessage({ type: 'execute', code, id, theme });
     });
   }
 

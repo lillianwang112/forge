@@ -54,7 +54,7 @@ export default function AIFeedback({
         display: 'flex',
         flexDirection: 'column',
         height: '100%',
-        backgroundColor: '#080c12',
+        backgroundColor: 'var(--bg-code)',
         fontFamily: 'var(--font-body)',
       }}
     >
