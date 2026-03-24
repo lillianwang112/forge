@@ -134,6 +134,65 @@
   border-radius: 4px;
 }
 
+/* ── Dashboard track card stagger ──────────────────────────── */
+
+.track-card-1 { animation: fadeInUp 0.35s ease 0.05s both; }
+.track-card-2 { animation: fadeInUp 0.35s ease 0.12s both; }
+.track-card-3 { animation: fadeInUp 0.35s ease 0.19s both; }
+
+/* ── Hero section entrance ──────────────────────────────────── */
+
+.hero-enter {
+  animation: fadeInDown 0.4s ease 0s both;
+}
+
+.hero-stats-enter {
+  animation: fadeIn 0.5s ease 0.2s both;
+}
+
+/* ── Card lift on hover ──────────────────────────────────────── */
+
+.card-lift {
+  transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease;
+}
+
+.card-lift:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.28);
+}
+
+/* ── Progress ring animation ─────────────────────────────────── */
+
+@keyframes ringFill {
+  from { stroke-dashoffset: var(--ring-full); }
+  to   { stroke-dashoffset: var(--ring-offset); }
+}
+
+.ring-fill {
+  animation: ringFill 0.8s cubic-bezier(0.4, 0, 0.2, 1) 0.3s both;
+}
+
+/* ── Quick action row ────────────────────────────────────────── */
+
+.quick-action {
+  transition: background-color 0.15s ease, border-color 0.15s ease, transform 0.12s ease;
+}
+
+.quick-action:hover {
+  transform: translateY(-1px);
+}
+
+/* ── Collapsible expand ──────────────────────────────────────── */
+
+@keyframes expandDown {
+  from { opacity: 0; transform: translateY(-6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.expand-enter {
+  animation: expandDown 0.2s ease both;
+}
+
 /* ── Prefers reduced motion override ────────────────────────── */
 
 @media (prefers-reduced-motion: reduce) {

@@ -158,5 +158,149 @@
     "category": "Type System",
     "track": "julia",
     "relatedLessons": ["ju-5"]
+  },
+  {
+    "conceptId": "ju-broadcasting-dot",
+    "front": "Julia broadcast dot syntax — how does `.` work?",
+    "back": "Any function `f` can be broadcast element-wise with `f.()` or `.+`, `.*`, etc.\n\n```julia\nx = [1.0, 2.0, 3.0]\n\nsin.(x)          # [sin(1), sin(2), sin(3)]\nx .^ 2           # [1, 4, 9]\nx .+ 10          # [11, 12, 13]\n\n# Chain broadcasts — Julia fuses them into a single loop!\ny = sin.(x) .* cos.(x) .+ x .^ 2   # no intermediate arrays!\n\n# @. macro broadcasts everything in expression:\ny = @. sin(x) * cos(x) + x^2\n```\n\nBroadcast fusion is a key Julia performance feature — unlike NumPy, no temporary arrays are created.",
+    "category": "Arrays",
+    "track": "julia",
+    "relatedLessons": ["ju-2"]
+  },
+  {
+    "conceptId": "ju-type-stability",
+    "front": "What is type stability in Julia and why does it matter?",
+    "back": "A function is **type-stable** if the return type depends only on the *types* of its arguments, not their values.\n\n```julia\n# Type-UNSTABLE: return type depends on value\nfunction bad(x)\n    if x > 0\n        return x       # Float64\n    else\n        return 0       # Int64  ← different type!\n    end\nend\n\n# Type-STABLE: always returns same type\nfunction good(x)\n    return x > 0 ? x : zero(x)   # same type as input\nend\n```\n\nType-unstable functions prevent Julia's JIT from generating efficient machine code. Check with `@code_warntype f(1.0)` — red variables are problematic.",
+    "category": "Performance",
+    "track": "julia",
+    "relatedLessons": ["ju-8", "ju-17"]
+  },
+  {
+    "conceptId": "ju-rk4-manual",
+    "front": "Implement RK4 in pure Julia (no DifferentialEquations.jl)?",
+    "back": "```julia\nfunction rk4_step(f, t, y, h)\n    k1 = f(t, y)\n    k2 = f(t + h/2, y + h/2 * k1)\n    k3 = f(t + h/2, y + h/2 * k2)\n    k4 = f(t + h, y + h * k3)\n    return y + (h/6) * (k1 + 2k2 + 2k3 + k4)\nend\n\nfunction rk4_solve(f, y0, t0, tf, h)\n    t, y = t0, y0\n    ts, ys = [t], [y]\n    while t < tf - h/2\n        y = rk4_step(f, t, y, h)\n        t += h\n        push!(ts, t); push!(ys, y)\n    end\n    return ts, ys\nend\n\n# Decay: dy/dt = -y, y(0) = 1 → y(t) = e^(-t)\nts, ys = rk4_solve((t,y) -> -y, 1.0, 0.0, 5.0, 0.1)\n```",
+    "category": "Numerical Methods",
+    "track": "julia",
+    "relatedLessons": ["ju-11"]
+  },
+  {
+    "conceptId": "ju-jump-syntax",
+    "front": "What does JuMP.jl model syntax look like?",
+    "back": "```julia\nusing JuMP, HiGHS  # (requires installation)\n\nmodel = Model(HiGHS.Optimizer)\n\n@variable(model, x >= 0)\n@variable(model, y >= 0)\n@constraint(model, x + y <= 10)\n@constraint(model, 2x + y <= 16)\n@objective(model, Max, 3x + 5y)\n\noptimize!(model)\nprintln(value(x), value(y))  # 6, 4  → obj=38\n```\n\nMacroEnergy.jl builds large JuMP models automatically from network topology and time-series data. The `@variable`, `@constraint`, `@objective` macros create Expr objects that JuMP translates to solver matrices.",
+    "category": "Optimization",
+    "track": "julia",
+    "relatedLessons": ["ju-16"]
+  },
+  {
+    "conceptId": "ju-multiple-dispatch-patterns",
+    "front": "Common multiple dispatch patterns in Julia?",
+    "back": "```julia\n# 1. Type-specific implementations\ndistance(a::Point2D, b::Point2D) = sqrt((a.x-b.x)^2 + (a.y-b.y)^2)\ndistance(a::Point3D, b::Point3D) = sqrt((a.x-b.x)^2+(a.y-b.y)^2+(a.z-b.z)^2)\n\n# 2. Fallback + specialization\nsolve(A, b) = A \\ b                    # generic\nsolve(A::Diagonal, b) = b ./ diag(A)  # fast special case\n\n# 3. Trait-based dispatch\nstruct Stiff end; struct NonStiff end\nstiffness(::ODEProblem{F}) where F = NonStiff()  # default\n\nintegrate(prob) = integrate(prob, stiffness(prob))\nintegrate(prob, ::Stiff) = radau(prob)\nintegrate(prob, ::NonStiff) = rk4(prob)\n```",
+    "category": "Type System",
+    "track": "julia",
+    "relatedLessons": ["ju-5", "ju-7"]
+  },
+  {
+    "conceptId": "ju-module-structure",
+    "front": "How do you structure a Julia package/module?",
+    "back": "```julia\n# src/MyPackage.jl\nmodule MyPackage\n\n# Public interface — explicit exports\nexport solve_dispatch, EnergySystem, add_generator!\n\n# Internal files\ninclude(\"types.jl\")       # struct definitions\ninclude(\"generators.jl\")  # generator modeling\ninclude(\"solver.jl\")      # optimization logic\ninclude(\"io.jl\")          # data reading/writing\n\nend\n```\n\n```toml\n# Project.toml\n[deps]\nLinearAlgebra = \"...\"\nStatistics = \"...\"\n```\n\n```julia\n# test/runtests.jl\nusing Test, MyPackage\n@testset \"Dispatch\" begin\n    @test solve_dispatch([100.0], [50.0]) == 50.0\nend\n```",
+    "category": "Package Development",
+    "track": "julia",
+    "relatedLessons": ["ju-15"]
+  },
+  {
+    "conceptId": "ju-metaprogramming-expr",
+    "front": "How does Julia metaprogramming work with Expr?",
+    "back": "Julia code is represented as `Expr` (expression) objects before compilation.\n\n```julia\n# Parse string to Expr\nex = Meta.parse(\"x + y * z\")\n# :( x + y * z )\n# Expr(:call, :+, :x, Expr(:call, :*, :y, :z))\n\n# Quote block: create Expr without evaluating\nex2 = quote\n    a = 1\n    b = a + 2\nend\n\n# Interpolate values into expressions\nfield = :speed\nex3 = :( obj.$field )   # obj.speed\n\n# Evaluate expression in current scope\neval(:(x = 42))\n```\n\nJuMP's `@constraint(m, x + y <= 1)` uses metaprogramming to parse the inequality and generate LP matrix rows.",
+    "category": "Metaprogramming",
+    "track": "julia",
+    "relatedLessons": ["ju-14"]
+  },
+  {
+    "conceptId": "ju-at-time",
+    "front": "How does `@time` work in Julia?",
+    "back": "`@time` is a macro that measures elapsed time and memory allocations.\n\n```julia\n@time sum(1:1_000_000)    # 0.000002 seconds (1 allocation: 16 bytes)\n@time rand(1000, 1000)    # 0.012 seconds (1 allocation: 7.63 MiB)\n\n# BenchmarkTools.jl (not in stdlib but commonly used):\n# @btime sin.(x) — more accurate, runs multiple times\n\n# Time a function\nfunction my_solver(n)\n    A = rand(n, n)\n    b = rand(n)\n    return A \\ b  # direct solve\nend\n@time my_solver(1000)  # shows time + allocations\n```\n\nHigh allocation count often indicates type instability. Use `@code_warntype` to diagnose.",
+    "category": "Performance",
+    "track": "julia",
+    "relatedLessons": ["ju-8", "ju-17"]
+  },
+  {
+    "conceptId": "ju-linear-algebra-stdlib",
+    "front": "What's in Julia's `LinearAlgebra` stdlib?",
+    "back": "```julia\nusing LinearAlgebra\n\nA = [4.0 3; 6 3]\n\n# Decompositions\nF = lu(A)             # LU decomposition\nQ, R = qr(A)\nvals, vecs = eigen(A) # eigenvalues & eigenvectors\nU, s, V = svd(A)      # SVD\n\n# Solve linear system\nx = A \\ b             # direct solve (LU internally)\n\n# Norms\nnorm(v)               # L2 norm\nnorm(A, 2)            # spectral norm (largest singular value)\nnorm(A, Inf)          # ∞-norm\ncond(A)               # condition number\n\n# Special matrices\nDiagonal([1,2,3])     # efficient diagonal\nSparse... (from SparseArrays)\n```",
+    "category": "Linear Algebra",
+    "track": "julia",
+    "relatedLessons": ["ju-10"]
+  },
+  {
+    "conceptId": "ju-dataframe-manual",
+    "front": "How to do DataFrame-like operations in pure Julia (no DataFrames.jl)?",
+    "back": "```julia\n# Represent as Dict of Arrays\ndata = Dict(\n    :hour => 1:24,\n    :demand_mw => rand(100:200, 24),\n    :source => fill(\"solar\", 24)\n)\n\n# Filter (boolean indexing)\nmask = data[:demand_mw] .> 150\nhigh_demand = Dict(k => v[mask] for (k,v) in data)\n\n# GroupBy + aggregate\ngroups = Dict{String, Vector{Float64}}()\nfor (src, val) in zip(data[:source], data[:demand_mw])\n    push!(get!(groups, src, Float64[]), val)\nend\nmeans = Dict(k => sum(v)/length(v) for (k,v) in groups)\n\n# Sort\nperm = sortperm(data[:demand_mw])\nsorted = Dict(k => v[perm] for (k,v) in data)\n```",
+    "category": "Data",
+    "track": "julia",
+    "relatedLessons": ["ju-13"]
+  },
+  {
+    "conceptId": "ju-test-stdlib",
+    "front": "How do you write tests with Julia's `Test` stdlib?",
+    "back": "```julia\nusing Test\n\n# Basic assertions\n@test 1 + 1 == 2\n@test sqrt(4.0) ≈ 2.0   # approximate equality (1e-8 tolerance)\n@test_throws DivisionError 1 ÷ 0\n@test_nowarn f()          # no warnings\n\n# Group tests\n@testset \"Economic Dispatch\" begin\n    @testset \"single generator\" begin\n        @test dispatch([100.0], [10.0], 50.0) == [50.0]\n    end\n    @testset \"merit order\" begin\n        result = dispatch([100.0, 80.0], [30.0, 10.0], 150.0)\n        @test result[2] == 80.0   # cheaper generator first\n    end\nend\n```\n\nNearly identical to pytest philosophy: self-validating, grouped, descriptive.",
+    "category": "Testing",
+    "track": "julia",
+    "relatedLessons": ["ju-15"]
+  },
+  {
+    "conceptId": "ju-energy-storage-ode",
+    "front": "How is battery storage modeled as an ODE?",
+    "back": "Battery **State of Charge (SOC)** follows:\n\n$$\\frac{d\\text{SOC}}{dt} = \\frac{P_{\\text{charge}}(t)}{E_{\\text{capacity}}}$$\n\nWith efficiency losses:\n$$\\frac{d\\text{SOC}}{dt} = \\frac{\\eta_{c} P_c(t) - P_d(t)/\\eta_d}{E_{\\text{capacity}}}$$\n\n```julia\nfunction battery_ode!(du, u, p, t)\n    # u[1] = SOC (0 to 1)\n    eta_c, eta_d, E_cap, P_charge, P_discharge = p\n    du[1] = (eta_c * P_charge - P_discharge/eta_d) / E_cap\nend\n```\n\nConstraints: `0 ≤ SOC ≤ 1`, `P_charge, P_discharge ≥ 0`.\n\nIn capacity expansion models, storage acts as an arbitrageur — charge when power is cheap (sunny midday), discharge when power is expensive (evening peak).",
+    "category": "Energy Systems",
+    "track": "julia",
+    "relatedLessons": ["ju-11", "ju-18"]
+  },
+  {
+    "conceptId": "ju-gradient-descent",
+    "front": "Implement gradient descent in pure Julia?",
+    "back": "```julia\nfunction gradient_descent(f, grad_f, x0; lr=0.01, max_iter=1000, tol=1e-6)\n    x = copy(x0)\n    for i in 1:max_iter\n        g = grad_f(x)\n        if norm(g) < tol\n            return x, i\n        end\n        x = x - lr * g\n    end\n    return x, max_iter\nend\n\n# Example: minimize f(x) = (x-3)^2\nf(x) = (x[1] - 3)^2\ngrad_f(x) = [2*(x[1] - 3)]\n\nxopt, iters = gradient_descent(f, grad_f, [0.0]; lr=0.1)\nprintln(xopt)  # [3.0]\n```\n\nFor LP/MILP problems: gradient descent doesn't work directly (non-smooth objectives, discrete variables). Use JuMP + HiGHS instead.",
+    "category": "Optimization",
+    "track": "julia",
+    "relatedLessons": ["ju-12"]
+  },
+  {
+    "conceptId": "ju-macroenergy-structure",
+    "front": "How is MacroEnergy.jl organized (at a high level)?",
+    "back": "MacroEnergy.jl is a Julia package for capacity expansion planning:\n\n```\nMacroEnergy.jl/\n├── src/\n│   ├── MacroEnergy.jl      # module root\n│   ├── model/\n│   │   ├── resources/      # solar, wind, gas, storage types\n│   │   ├── network/        # transmission network graph\n│   │   └── constraints/    # balance, capacity, ramping\n│   ├── io/                 # reading YAML/CSV input data\n│   └── solve.jl            # JuMP model construction + optimize!\n└── test/\n```\n\nKey design:\n- Each resource (solar, gas, battery) is a Julia struct with methods for generating JuMP variables and constraints\n- Multiple dispatch allows adding new resource types without modifying existing code\n- Time series (8760 hourly hours) are handled as parameter arrays",
+    "category": "Energy Systems",
+    "track": "julia",
+    "relatedLessons": ["ju-15", "ju-18"]
+  },
+  {
+    "conceptId": "ju-vs-python-gotchas",
+    "front": "Julia vs Python: key gotchas to remember?",
+    "back": "| Feature | Python | Julia |\n|---------|--------|-------|\n| Indexing | `x[0]` (0-based) | `x[1]` (1-based) |\n| Integer division | `x // y` | `div(x, y)` or `x ÷ y` |\n| Print | `print(x)` | `println(x)` (adds newline) |\n| Exponent | `x ** 2` | `x ^ 2` |\n| Block end | indentation | `end` keyword |\n| String interp | `f'{x:.2f}'` | `\"$(round(x, digits=2))\"` |\n| In-place op | `arr.append(x)` | `push!(arr, x)` (note `!`) |\n| Column-major | row-major (C order) | column-major (Fortran order) |\n| Module import | `import x` | `using X` or `import X` |\n\nMost dangerous: **1-based indexing** causes off-by-one bugs for Python programmers.",
+    "category": "Julia Fundamentals",
+    "track": "julia",
+    "relatedLessons": ["ju-1", "ju-2"]
+  },
+  {
+    "conceptId": "ju-staticsarrays-concept",
+    "front": "Why use StaticArrays in Julia for small fixed-size arrays?",
+    "back": "For small arrays (size known at compile time), `StaticArrays.jl` (`SVector`, `SMatrix`) store data on the **stack** instead of heap:\n\n```julia\nusing StaticArrays\n\n# Heap allocation (flexible but slower for small arrays)\nv = [1.0, 2.0, 3.0]       # Vector{Float64}\n\n# Stack allocation (fast for small, fixed-size arrays)\nv = @SVector [1.0, 2.0, 3.0]  # SVector{3, Float64}\nA = @SMatrix [1.0 2; 3 4]     # SMatrix{2,2,Float64,4}\n\n# Operations: same API but 10-100x faster for small sizes\nnorm(v)      # no allocation!\nA * v        # fully unrolled by compiler\n```\n\nFor energy systems: state vectors (SOC, voltage) are often small and computed millions of times.",
+    "category": "Performance",
+    "track": "julia",
+    "relatedLessons": ["ju-17"]
+  },
+  {
+    "conceptId": "ju-lp-simplex-concept",
+    "front": "How does the simplex method solve LP problems?",
+    "back": "The **simplex method** walks along edges of the feasible polytope to find the optimum:\n\n1. Start at a corner (basic feasible solution)\n2. Find an adjacent corner with better objective value\n3. Pivot to that corner\n4. Repeat until no better adjacent corner exists\n\n$$\\text{LP: } \\min c^T x \\text{ s.t. } Ax = b, x \\geq 0$$\n\nIn practice: interior-point methods are faster for large LP. HiGHS (used by JuMP) switches automatically.\n\nCapacity expansion models have millions of variables (one per resource per hour) and millions of constraints. State-of-the-art solvers exploit sparsity to solve in minutes.",
+    "category": "Optimization",
+    "track": "julia",
+    "relatedLessons": ["ju-16"]
+  },
+  {
+    "conceptId": "ju-println-formatting",
+    "front": "How do you format numbers in Julia output?",
+    "back": "```julia\nusing Printf\n\n# Printf-style formatting\n@printf(\"Cost: %.2f\\n\", 1234.567)     # Cost: 1234.57\n@printf(\"%d generators\\n\", 5)          # 5 generators\n\n# String interpolation (basic)\nx = 3.14159\nprintln(\"pi ≈ $x\")                    # pi ≈ 3.14159\nprintln(\"pi ≈ $(round(x, digits=2))\") # pi ≈ 3.14\n\n# Round to N digits\nround(1234.5678, digits=2)  # 1234.57\nround(Int, 3.7)             # 4\n\n# In test cases: always round floats for deterministic output\nprintln(round(result, digits=6))\n```",
+    "category": "Julia Fundamentals",
+    "track": "julia",
+    "relatedLessons": ["ju-1"]
   }
 ]

@@ -158,5 +158,165 @@
     "category": "NumPy",
     "track": "python",
     "relatedLessons": ["py-2", "py-3"]
+  },
+  {
+    "conceptId": "py-broadcasting-rules",
+    "front": "NumPy broadcasting rules — when do shapes work together?",
+    "back": "Two shapes are compatible if, for each dimension (compared right to left):\n- they are **equal**, or\n- one of them is **1**\n\nMissing dimensions are treated as size 1.\n\n```python\n(3, 4) + (4,)      # OK → (3, 4)  broadcast (4,) across rows\n(3, 1) + (1, 4)    # OK → (3, 4)  outer-product style\n(3, 4) + (3,)      # ERROR — trailing dims must match\n(3, 4) + (3, 1)    # OK → (3, 4)\n```\n\nUse `v[:, np.newaxis]` to add a size-1 axis.",
+    "category": "NumPy",
+    "track": "python",
+    "relatedLessons": ["py-3"]
+  },
+  {
+    "conceptId": "py-scipy-linprog",
+    "front": "How does `scipy.optimize.linprog` work?",
+    "back": "`linprog` **minimizes** `c @ x` subject to `A_ub @ x <= b_ub`, `A_eq @ x == b_eq`, and bounds.\n\n```python\nfrom scipy.optimize import linprog\n\n# Minimize -3x - 5y  (i.e., maximize 3x+5y)\nc = [-3, -5]\nA_ub = [[1, 0], [0, 2], [3, 5]]\nb_ub = [4, 12, 25]\nbounds = [(0, None), (0, None)]\nres = linprog(c, A_ub=A_ub, b_ub=b_ub, bounds=bounds)\nprint(res.x)      # optimal solution\nprint(-res.fun)   # optimal objective value\n```\n\nNOTE: negate `c` to maximize instead of minimize.",
+    "category": "SciPy",
+    "track": "python",
+    "relatedLessons": ["py-14"]
+  },
+  {
+    "conceptId": "py-economic-dispatch",
+    "front": "What is the economic dispatch problem?",
+    "back": "**Economic dispatch**: allocate power generation across units to meet demand at minimum cost.\n\n$$\\min \\sum_i c_i g_i \\quad \\text{s.t.} \\sum_i g_i = D, \\quad 0 \\le g_i \\le G_i^{\\max}$$\n\nWith linear costs, optimal solution:\n1. Sort generators by cost (cheapest first)\n2. Dispatch cheapest generator to its max capacity\n3. Repeat until demand is met (merit-order dispatch)\n\nThis greedy solution is optimal for linear costs. JuMP / linprog needed for non-linear or mixed-integer.",
+    "category": "Energy Systems",
+    "track": "python",
+    "relatedLessons": ["py-14", "py-20"]
+  },
+  {
+    "conceptId": "py-rk4",
+    "front": "What is the Runge-Kutta 4 (RK4) method?",
+    "back": "RK4 advances a solution to `dy/dt = f(t, y)` with 4 slope estimates:\n\n$$k_1 = f(t_n, y_n)$$\n$$k_2 = f(t_n + h/2,\\; y_n + hk_1/2)$$\n$$k_3 = f(t_n + h/2,\\; y_n + hk_2/2)$$\n$$k_4 = f(t_n + h,\\; y_n + hk_3)$$\n$$y_{n+1} = y_n + \\frac{h}{6}(k_1 + 2k_2 + 2k_3 + k_4)$$\n\nRK4 has **4th-order accuracy** — error is O(h⁴). Much better than Euler's O(h).\n\n```python\nfrom scipy.integrate import solve_ivp\nsol = solve_ivp(f, [0, 10], y0, method='RK45')\n```",
+    "category": "Numerical Methods",
+    "track": "python",
+    "relatedLessons": ["py-13"]
+  },
+  {
+    "conceptId": "py-fft-interpretation",
+    "front": "How do you interpret `np.fft.fft` output?",
+    "back": "`np.fft.fft(x)` returns N complex coefficients.\n\n```python\nimport numpy as np\nN = 1000\ndt = 0.001          # 1 kHz sample rate\nfreqs = np.fft.fftfreq(N, d=dt)  # frequency array\npowers = np.abs(np.fft.fft(x))**2 / N\n\n# Use fftshift to center around 0\n# Or only look at positive freqs (N//2 components)\npos = slice(0, N//2)\nplt.plot(freqs[pos], powers[pos])\n```\n\nA peak at frequency `f` means the signal has a periodic component with period `1/f`. For hourly wind data, a peak at `f = 1/24` indicates a daily cycle.",
+    "category": "Signal Processing",
+    "track": "python",
+    "relatedLessons": ["py-15"]
+  },
+  {
+    "conceptId": "py-adjacency-matrix",
+    "front": "How do you represent a graph as a NumPy adjacency matrix?",
+    "back": "An **adjacency matrix** `A[i,j] = weight` if edge (i→j) exists, else 0.\n\n```python\nimport numpy as np\n\n# 4-node power grid: buses 0-3\nA = np.zeros((4, 4))\nA[0,1] = A[1,0] = 100  # line 0-1: 100 MW capacity\nA[1,2] = A[2,1] = 80\nA[2,3] = A[3,2] = 120\n\n# Degree of each node (number of connections)\ndegree = (A > 0).sum(axis=1)\nprint(degree)  # [1, 2, 2, 1]\n\n# BFS from node 0\nfrom collections import deque\nvisited = set([0])\nqueue = deque([0])\nwhile queue:\n    node = queue.popleft()\n    for neighbor in np.where(A[node] > 0)[0]:\n        if neighbor not in visited:\n            visited.add(neighbor)\n            queue.append(neighbor)\n```",
+    "category": "Algorithms",
+    "track": "python",
+    "relatedLessons": ["py-16"]
+  },
+  {
+    "conceptId": "py-unit-commitment",
+    "front": "What is the unit commitment problem?",
+    "back": "**Unit commitment**: decide which generators to turn on (binary variables) to meet demand over time, minimizing total cost.\n\n$$\\min \\sum_{t,i} c_i g_{it} + s_i u_{it}$$\n\nwhere $u_{it} \\in \\{0,1\\}$ is the on/off status, $s_i$ is startup cost.\n\nThis is a **MILP** (Mixed-Integer Linear Program) — much harder than LP because of binary variables. MacroEnergy.jl solves this at scale using JuMP + commercial solvers (Gurobi, HiGHS).\n\nSimplification: if startup costs are small, solve as LP (relax binary constraints).",
+    "category": "Energy Systems",
+    "track": "python",
+    "relatedLessons": ["py-17"]
+  },
+  {
+    "conceptId": "py-pandas-method-chaining",
+    "front": "Pandas method chaining — how and why?",
+    "back": "Chain methods to create readable data pipelines without intermediate variables:\n\n```python\nresult = (\n    df\n    .query('year >= 2020')\n    .assign(cost_per_mw=lambda x: x['total_cost'] / x['capacity_mw'])\n    .groupby('fuel_type')['cost_per_mw']\n    .mean()\n    .sort_values()\n    .round(2)\n)\n```\n\nTips:\n- Use `query()` instead of boolean indexing for readability\n- Use `assign()` to add columns without mutation\n- Use `pipe(func)` to insert custom functions into the chain",
+    "category": "Pandas",
+    "track": "python",
+    "relatedLessons": ["py-6", "py-7"]
+  },
+  {
+    "conceptId": "py-pathlib",
+    "front": "How do you use `pathlib.Path` for file operations?",
+    "back": "```python\nfrom pathlib import Path\n\n# Create path objects\ndata_dir = Path('data') / 'raw'\nfile = data_dir / 'nrel_atb_2024.csv'\n\n# Check existence\nif file.exists():\n    df = pd.read_csv(file)\n\n# Iterate over files\nfor csv_file in data_dir.glob('*.csv'):\n    process(csv_file)\n\n# Get parts\nfile.stem      # 'nrel_atb_2024'  (no extension)\nfile.suffix    # '.csv'\nfile.parent    # Path('data/raw')\n\n# Create directory tree\n(Path('results') / 'figures').mkdir(parents=True, exist_ok=True)\n```",
+    "category": "Python stdlib",
+    "track": "python",
+    "relatedLessons": ["py-18"]
+  },
+  {
+    "conceptId": "py-rolling-window",
+    "front": "How do you compute a rolling average in Pandas/NumPy?",
+    "back": "**Pandas** (recommended for time series):\n```python\ndf['demand_7day_avg'] = df['demand_mw'].rolling(window=7).mean()\ndf['demand_ewm'] = df['demand_mw'].ewm(span=7).mean()  # exponential\n```\n\n**NumPy** (using convolution):\n```python\nwindow = 7\nkernel = np.ones(window) / window\nrolling = np.convolve(arr, kernel, mode='valid')  # shorter output\n# Or use stride tricks for same-length output\n```\n\nFor energy data: 7-day rolling mean smooths weekly demand patterns; 24-hour rolling mean reveals daily cycles.",
+    "category": "Time Series",
+    "track": "python",
+    "relatedLessons": ["py-15"]
+  },
+  {
+    "conceptId": "py-solve-ivp",
+    "front": "When to use `scipy.integrate.solve_ivp` vs manual Euler/RK4?",
+    "back": "**Use `solve_ivp`** for production code:\n- Automatic step size control (adaptive)\n- Stiff ODE solvers (`method='Radau'` or `'LSODA'`)\n- Event detection, dense output\n\n```python\nfrom scipy.integrate import solve_ivp\n\ndef battery_ode(t, y, P_charge, capacity):\n    soc = y[0]  # state of charge\n    return [P_charge / capacity]\n\nsol = solve_ivp(battery_ode, [0, 3600], [0.5], args=(100, 1000))\n```\n\n**Implement manually** when learning, building intuition, or constrained to pure NumPy (no SciPy). Euler: O(h) error. RK4: O(h⁴) error.",
+    "category": "Numerical Methods",
+    "track": "python",
+    "relatedLessons": ["py-13"]
+  },
+  {
+    "conceptId": "py-capacity-expansion",
+    "front": "What is capacity expansion modeling?",
+    "back": "**Capacity expansion**: decide how much of each generation resource to *build* to meet future demand at minimum total cost.\n\n$$\\min \\sum_i C_i^{\\text{cap}} x_i + \\sum_{t,i} C_i^{\\text{op}} g_{it}$$\n\nDecision variables:\n- $x_i$ = capacity built of resource $i$ (MW) — continuous\n- $g_{it}$ = generation at time $t$ from resource $i$ (MW) — continuous\n\nThis is a **LP** (if no integer variables). MacroEnergy.jl solves this for the US grid with 8760 hourly time steps.\n\nKey resources: solar, wind, natural gas, nuclear, batteries, hydro.",
+    "category": "Energy Systems",
+    "track": "python",
+    "relatedLessons": ["py-20"]
+  },
+  {
+    "conceptId": "py-concurrent-futures",
+    "front": "How does `concurrent.futures` work in Python?",
+    "back": "```python\nfrom concurrent.futures import ThreadPoolExecutor, ProcessPoolExecutor\n\n# I/O-bound tasks (network, disk): use ThreadPoolExecutor\nwith ThreadPoolExecutor(max_workers=8) as executor:\n    futures = [executor.submit(fetch_weather, city) for city in cities]\n    results = [f.result() for f in futures]\n\n# CPU-bound tasks (computation): use ProcessPoolExecutor\nwith ProcessPoolExecutor(max_workers=4) as executor:\n    results = list(executor.map(run_simulation, scenarios))\n```\n\nFor energy models: parallelize scenario analysis (e.g., 100 carbon price scenarios) across CPU cores. GIL limitation: threads don't speed up pure Python CPU work.",
+    "category": "Performance",
+    "track": "python",
+    "relatedLessons": ["py-19"]
+  },
+  {
+    "conceptId": "py-lp-standard-form",
+    "front": "LP standard form — what is it?",
+    "back": "**Standard form** (for `linprog`): \n$$\\min c^T x \\quad \\text{s.t.} \\; Ax \\le b,\\; x \\ge 0$$\n\nConversions:\n- **Maximize** `f(x)`: minimize `-f(x)`\n- **Equality** `Ax = b`: two inequalities `Ax ≤ b` and `-Ax ≤ -b`\n- **Free variable** `x` (unconstrained): substitute `x = x⁺ - x⁻` where `x⁺, x⁻ ≥ 0`\n- **≥ constraint** `Ax ≥ b`: multiply by -1 → `-Ax ≤ -b`\n\nIn `scipy.optimize.linprog`: use `A_ub` (≤) and `A_eq` (=) and `bounds`.",
+    "category": "Optimization",
+    "track": "python",
+    "relatedLessons": ["py-14"]
+  },
+  {
+    "conceptId": "py-condition-number",
+    "front": "What is the condition number of a matrix?",
+    "back": "$$\\kappa(A) = \\|A\\| \\cdot \\|A^{-1}\\|$$\n\nMeasures how sensitive `Ax = b` is to perturbations in `b` or `A`.\n\n```python\nimport numpy as np\nA = np.array([[1, 2], [2, 4.001]])  # nearly singular\nprint(np.linalg.cond(A))  # very large → ill-conditioned\n```\n\n- κ ≈ 1: well-conditioned (tiny perturbations → tiny error)\n- κ >> 1: ill-conditioned (small perturbation → large error)\n- κ → ∞: singular matrix\n\nRule of thumb: you lose ~log₁₀(κ) digits of accuracy.",
+    "category": "Numerical Methods",
+    "track": "python",
+    "relatedLessons": ["py-4"]
+  },
+  {
+    "conceptId": "py-sparse-matrices",
+    "front": "When and why use `scipy.sparse` matrices?",
+    "back": "Use sparse matrices when most entries are zero (power grid admittance matrices, FEM stiffness matrices).\n\n```python\nfrom scipy.sparse import csr_matrix, lil_matrix\nfrom scipy.sparse.linalg import spsolve\n\n# Build sparse matrix (lil is efficient for construction)\nL = lil_matrix((n, n))\nfor i, j, val in edges:\n    L[i,i] += val\n    L[i,j] -= val\nL = L.tocsr()  # convert to CSR for computation\n\nx = spsolve(L, b)  # sparse direct solver\n```\n\nBenefits: O(nnz) memory vs O(n²), O(nnz) sparse-vector multiply. A 1000-bus grid has 1000² = 1M entries but only ~3000 non-zeros.",
+    "category": "Numerical Methods",
+    "track": "python",
+    "relatedLessons": ["py-10"]
+  },
+  {
+    "conceptId": "py-autocorrelation",
+    "front": "What does autocorrelation reveal about a time series?",
+    "back": "**Autocorrelation** measures correlation of a signal with a time-shifted version of itself.\n\n```python\nimport numpy as np\n\ndef autocorr(x, max_lag=50):\n    x = x - x.mean()\n    n = len(x)\n    result = []\n    for lag in range(max_lag):\n        corr = np.correlate(x[lag:], x[:n-lag]) / (np.var(x) * (n - lag))\n        result.append(corr[0])\n    return np.array(result)\n```\n\nFor solar generation:\n- Strong autocorrelation at lag 24h → daily cycle\n- Strong autocorrelation at lag 168h → weekly cycle\n- These patterns are called **seasonality**",
+    "category": "Time Series",
+    "track": "python",
+    "relatedLessons": ["py-15"]
+  },
+  {
+    "conceptId": "py-json-csv-io",
+    "front": "Reading energy datasets: CSV vs JSON in Python?",
+    "back": "**CSV** (tabular data, most common for energy datasets):\n```python\nimport csv\nwith open('eia_hourly_load.csv') as f:\n    reader = csv.DictReader(f)\n    rows = list(reader)  # list of dicts\n\n# Better: use Pandas\ndf = pd.read_csv('eia_hourly_load.csv', parse_dates=['datetime'])\n```\n\n**JSON** (structured/nested data, configuration):\n```python\nimport json\nwith open('model_config.json') as f:\n    config = json.load(f)\nwith open('results.json', 'w') as f:\n    json.dump(results, f, indent=2)\n```\n\nFor large datasets: HDF5 (`pd.read_hdf`) or Parquet (`pd.read_parquet`) — much faster I/O.",
+    "category": "Data Engineering",
+    "track": "python",
+    "relatedLessons": ["py-18"]
+  },
+  {
+    "conceptId": "py-generator-expression",
+    "front": "Generator vs list comprehension — when to use which?",
+    "back": "**List comprehension** `[...]` — eager, all in memory:\n```python\nsquares = [x**2 for x in range(1_000_000)]  # 8 MB in memory\n```\n\n**Generator expression** `(...)` — lazy, one at a time:\n```python\nsquares = (x**2 for x in range(1_000_000))  # almost no memory\nfor s in squares:  # only computes when needed\n    process(s)\n```\n\nUse generators when:\n- Sequence is large and you don't need it all at once\n- You're piping data through multiple transformations\n- Parsing large files line by line\n\n```python\ntotal = sum(x**2 for x in data)  # generator passed to sum()\n```",
+    "category": "Python",
+    "track": "python",
+    "relatedLessons": ["py-1"]
+  },
+  {
+    "conceptId": "py-macro-energy-connection",
+    "front": "How does the Python curriculum connect to MacroEnergy.jl?",
+    "back": "MacroEnergy.jl solves **capacity expansion problems** for energy systems. The Python curriculum builds toward this:\n\n| Python Lesson | MacroEnergy.jl Connection |\n|---|---|\n| py-13 (ODE) | Storage dynamics (battery SOC) |\n| py-14 (LP) | Core optimization engine |\n| py-15 (Time Series) | 8760 hourly demand profiles |\n| py-16 (Graphs) | Transmission network modeling |\n| py-17 (MILP) | Unit commitment scheduling |\n| py-18 (I/O) | EIA/NREL data pipelines |\n| py-20 (Capstone) | Baby capacity expansion model |\n\nMacroEnergy.jl adds: JuMP.jl for LP/MILP, Julia for speed, full US grid topology, multiple planning periods.",
+    "category": "Energy Systems",
+    "track": "python",
+    "relatedLessons": ["py-20"]
   }
 ]
