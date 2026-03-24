@@ -7,6 +7,7 @@ import ChallengePage from './pages/ChallengePage';
 import ChallengesPage from './pages/ChallengesPage';
 import ReviewPage from './pages/ReviewPage';
 import SettingsPage from './pages/SettingsPage';
+import ProgressPage from './pages/ProgressPage';
 import { ToastProvider } from './components/shared/Toast';
 
 export default function App() {
@@ -21,6 +22,7 @@ export default function App() {
           <Route path="/challenges" element={<ChallengesPage />} />
           <Route path="/challenge/:id" element={<ChallengePage />} />
           <Route path="/review" element={<ReviewPage />} />
+          <Route path="/progress" element={<ProgressPage />} />
           <Route path="/settings" element={<SettingsPage />} />
         </Route>
       </Routes>

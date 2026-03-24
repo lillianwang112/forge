@@ -184,6 +184,7 @@ export default function Sidebar({ collapsed, onToggle }) {
         <NavSection label="Practice" collapsed={collapsed} />
         <SidebarNavLink to="/challenges" icon="⚔️" label="Challenges" collapsed={collapsed} />
         <SidebarNavLink to="/review" icon="🗂️" label="Review (SRS)" collapsed={collapsed} badge={dueCount} />
+        <SidebarNavLink to="/progress" icon="📊" label="Progress" collapsed={collapsed} />
 
         <div
           style={{

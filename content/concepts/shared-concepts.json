@@ -78,5 +78,117 @@
     "category": "Engineering",
     "track": "shared",
     "relatedLessons": ["sh-1", "sh-2"]
+  },
+  {
+    "conceptId": "sh-floating-point-gotcha",
+    "front": "Why does `0.1 + 0.2 != 0.3` in Python/Julia?",
+    "back": "Floating-point numbers use **binary IEEE 754 representation**. Most decimal fractions (0.1, 0.2, 0.3) cannot be represented exactly in binary:\n\n```python\n>>> 0.1 + 0.2\n0.30000000000000004\n>>> 0.1 + 0.2 == 0.3\nFalse\n\n# Always compare with tolerance:\nimport math\nmath.isclose(0.1 + 0.2, 0.3, rel_tol=1e-9)\n# True\n\nimport numpy as np\nnp.isclose(arr1, arr2)  # element-wise\n```\n\nIn Julia: `0.1 + 0.2 ≈ 0.3` uses `isapprox` internally. Never use `==` for float comparison in scientific code.",
+    "category": "Numerical Methods",
+    "track": "shared",
+    "relatedLessons": ["sh-7"]
+  },
+  {
+    "conceptId": "sh-catastrophic-cancellation",
+    "front": "What is catastrophic cancellation and how do you avoid it?",
+    "back": "**Catastrophic cancellation**: subtracting nearly equal numbers destroys significant digits.\n\n```python\na = 1.0000000001\nb = 1.0000000000\nresult = a - b  # should be 1e-10\n# float64 result: 1.0000000000065512e-10  (6+ digits wrong!)\n```\n\n**Avoidance strategies**:\n1. Rearrange formulas algebraically (e.g., `x² - y²` → `(x-y)(x+y)`)\n2. Use `np.log1p(x)` instead of `np.log(1+x)` for small `x`\n3. Use `np.expm1(x)` instead of `np.exp(x) - 1`\n4. Use higher precision (`np.float128`, `Decimal`) if necessary\n5. **Kahan summation** for summing many numbers\n\nEnergy models: errors accumulate over 8760 hourly time steps!",
+    "category": "Numerical Methods",
+    "track": "shared",
+    "relatedLessons": ["sh-7"]
+  },
+  {
+    "conceptId": "sh-big-o-sparse",
+    "front": "Why are sparse matrix operations O(nnz) instead of O(n²)?",
+    "back": "A sparse matrix with n rows/cols and nnz non-zeros:\n\n- **Storage**: O(nnz) bytes (CSR format stores only non-zero values + indices)\n- **Matrix-vector multiply**: O(nnz) operations (only process non-zero entries)\n- **Dense**: O(n²) storage and O(n²) multiply\n\nFor a 10,000-bus power grid:\n- Dense: 100M entries × 8 bytes = 800 MB\n- Sparse: ~30,000 non-zeros × 24 bytes = 720 KB\n\n```python\nfrom scipy.sparse import csr_matrix\nfrom scipy.sparse.linalg import spsolve\n\nL = build_laplacian_sparse(n_buses=10000, edges=network_edges)\nx = spsolve(L, b)   # O(nnz^1.5) for direct sparse solve\n```",
+    "category": "Algorithms",
+    "track": "shared",
+    "relatedLessons": ["sh-8"]
+  },
+  {
+    "conceptId": "sh-strategy-pattern",
+    "front": "Strategy pattern in scientific code?",
+    "back": "**Strategy pattern**: define a family of algorithms, encapsulate each, make them interchangeable.\n\n```python\nfrom abc import ABC, abstractmethod\n\nclass Solver(ABC):\n    @abstractmethod\n    def solve(self, model):\n        pass\n\nclass LPSolver(Solver):\n    def solve(self, model): return linprog_solve(model)\n\nclass MILPSolver(Solver):\n    def solve(self, model): return branch_and_bound(model)\n\nclass EnergyModel:\n    def __init__(self, solver: Solver):\n        self.solver = solver\n    def optimize(self):\n        return self.solver.solve(self)\n\n# Swap solver without changing model code:\nmodel = EnergyModel(solver=LPSolver())\nmodel.solver = MILPSolver()  # upgrade without refactoring\n```\n\nMacroEnergy.jl uses this: swap between HiGHS, Gurobi, CPLEX without code changes.",
+    "category": "Design Patterns",
+    "track": "shared",
+    "relatedLessons": ["sh-9"]
+  },
+  {
+    "conceptId": "sh-reproducibility-seed",
+    "front": "How do you ensure reproducible random results in Python/Julia?",
+    "back": "Always set seeds before any stochastic computation:\n\n```python\n# Python\nimport numpy as np\nimport random\n\nnp.random.seed(42)\nrandom.seed(42)\n\n# Better (newer API): use RNG objects\nrng = np.random.default_rng(seed=42)\nsamples = rng.normal(size=1000)\n```\n\n```julia\n# Julia\nusing Random\nRandom.seed!(42)\n\n# Or use RNG object:\nrng = MersenneTwister(42)\nrand(rng, 1000)\n```\n\nFor research: document seeds in config files or CLI args. Log them to output files. Store in experiment metadata. **Never hardcode seeds** in functions — pass as parameters.",
+    "category": "Reproducibility",
+    "track": "shared",
+    "relatedLessons": ["sh-10"]
+  },
+  {
+    "conceptId": "sh-environment-pinning",
+    "front": "Environment pinning: Python requirements.txt vs Julia Project.toml?",
+    "back": "**Python** — `requirements.txt` or `pyproject.toml`:\n```\n# requirements.txt (exact versions)\nnumpy==1.26.4\nscipy==1.12.0\npandas==2.2.1\n\npip freeze > requirements.txt   # capture current env\npip install -r requirements.txt  # reproduce env\n```\n\n**Julia** — `Project.toml` + `Manifest.toml`:\n```toml\n[deps]\nLinearAlgebra = \"37e2e46d-f89d-539d-b4ee-838fcccc9c8e\"\nStatistics = \"10745b16-79ce-11e8-11f9-7d13ad32a3b2\"\n```\n```julia\nusing Pkg\nPkg.activate(\".\")    # use this project's environment\nPkg.instantiate()    # install exact pinned versions\n```\n\nCommit **both** `Project.toml` and `Manifest.toml` for full reproducibility.",
+    "category": "Reproducibility",
+    "track": "shared",
+    "relatedLessons": ["sh-10"]
+  },
+  {
+    "conceptId": "sh-amortized-analysis",
+    "front": "What is amortized analysis?",
+    "back": "**Amortized analysis**: analyze the average cost per operation over a sequence, even if individual operations vary.\n\nExample: Python `list.append()`\n- Most appends: O(1) — just write to existing slot\n- Occasional append: O(n) — must copy to larger array\n- **Amortized**: O(1) per append on average (list doubles capacity each resize)\n\n```python\n# Appears O(n²) but is actually O(n) total:\nresult = []\nfor x in data:\n    result.append(x)   # amortized O(1) per append\n```\n\nFor energy models: union-find data structure has amortized O(α(n)) per operation — critical for network connectivity algorithms.",
+    "category": "Algorithms",
+    "track": "shared",
+    "relatedLessons": ["sh-8"]
+  },
+  {
+    "conceptId": "sh-open-source-pr",
+    "front": "Workflow for contributing to an open-source project like MacroEnergy.jl?",
+    "back": "1. **Fork** the repo on GitHub (your copy)\n2. **Clone** your fork locally\n3. **Create a branch**: `git checkout -b fix/storage-soc-constraint`\n4. **Make small, focused changes** — one concern per PR\n5. **Write tests** for your changes\n6. **Commit** with conventional commit message\n7. **Push** to your fork: `git push origin fix/storage-soc-constraint`\n8. **Open PR** against the upstream `main` branch\n9. **Respond to review** — address all comments\n10. **Squash and merge** once approved\n\nGood first contributions to MacroEnergy.jl:\n- Fix typos in docs\n- Add examples to docstrings\n- Improve error messages\n- Add test coverage for edge cases",
+    "category": "Open Source",
+    "track": "shared",
+    "relatedLessons": ["sh-12"]
+  },
+  {
+    "conceptId": "sh-docstring-google-style",
+    "front": "Google-style vs NumPy-style docstrings?",
+    "back": "**Google style** (compact, readable inline):\n```python\ndef solve(A, b, method='lu'):\n    \"\"\"Solve linear system Ax = b.\n\n    Args:\n        A: Coefficient matrix of shape (n, n).\n        b: Right-hand side vector of shape (n,).\n        method: Solver method, one of 'lu', 'qr', 'iterative'.\n\n    Returns:\n        Solution vector x of shape (n,).\n\n    Raises:\n        ValueError: If A is singular.\n    \"\"\"\n```\n\n**NumPy style** (sections with underlines, better for complex docs):\n```python\ndef solve(A, b):\n    \"\"\"\n    Parameters\n    ----------\n    A : ndarray, shape (n, n)\n    b : ndarray, shape (n,)\n    Returns\n    -------\n    x : ndarray\n    \"\"\"\n```\n\nFor MacroEnergy.jl: use Julia docstrings with `\"\"\"` and Documenter.jl conventions.",
+    "category": "Documentation",
+    "track": "shared",
+    "relatedLessons": ["sh-11"]
+  },
+  {
+    "conceptId": "sh-ieee-754",
+    "front": "IEEE 754 float64 — how many significant digits?",
+    "back": "Float64 (double precision) has:\n- **52-bit mantissa** → ~15–16 significant decimal digits\n- **11-bit exponent** → range ~10⁻³⁰⁸ to 10³⁰⁸\n- **1 sign bit**\n\n```python\nimport sys\nprint(sys.float_info.epsilon)   # ~2.2e-16 (machine epsilon)\n# epsilon = smallest x such that 1.0 + x != 1.0\n\n# Practical rule: if two numbers differ by < 1e-15,\n# they may be numerically identical\nimport numpy as np\nnp.finfo(np.float64).eps  # 2.220446049250313e-16\n```\n\nFloat32 has ~7 digits. For energy models with millions of constraints: use float64. For ML: float32 is often sufficient.",
+    "category": "Numerical Methods",
+    "track": "shared",
+    "relatedLessons": ["sh-7"]
+  },
+  {
+    "conceptId": "sh-latex-equations",
+    "front": "How do you write equations in research documentation?",
+    "back": "**In Markdown (GitHub, Jupyter):**\n- Inline: `$E = mc^2$`\n- Display: `$$\\sum_{i=1}^n x_i^2$$`\n\n**Common LP notation:**\n```latex\n\\min_{x \\ge 0} \\; c^T x\n\\quad \\text{s.t.} \\quad Ax \\le b\n```\n\n**Energy systems notation:**\n```latex\n\\min \\sum_{i \\in G} \\sum_{t=1}^{T} c_i g_{it}\n\\quad \\text{s.t.} \\quad \\sum_{i \\in G} g_{it} = D_t \\; \\forall t\n```\n\n**In Julia docstrings:**\n```julia\n\"\"\"\nSolve the economic dispatch:\n```math\n\\\\min \\\\sum_i c_i g_i \\\\quad s.t. \\\\sum_i g_i = D\n```\n\"\"\"\n```",
+    "category": "Technical Writing",
+    "track": "shared",
+    "relatedLessons": ["sh-11"]
+  },
+  {
+    "conceptId": "sh-profiling-python",
+    "front": "How do you profile Python code to find bottlenecks?",
+    "back": "```python\n# cProfile: line-level profiling\nimport cProfile\ncProfile.run('my_simulation()')\n\n# Better: use snakeviz for visualization\n# pip install snakeviz\n# python -m cProfile -o profile.prof script.py\n# snakeviz profile.prof\n\n# line_profiler: line-by-line within a function\n# @profile decorator, then: kernprof -l script.py\n\n# Quick timing:\nimport timeit\ntimeit.timeit('np.dot(A, b)', globals=globals(), number=1000)\n\n# In Jupyter:\n%timeit my_function()     # auto-repeat, statistics\n%prun my_function()       # cProfile in notebook\n```\n\nFor energy models: usually 90% of time is in the LP solver, not Python code.",
+    "category": "Performance",
+    "track": "shared",
+    "relatedLessons": ["sh-8"]
+  },
+  {
+    "conceptId": "sh-factory-pattern",
+    "front": "Factory pattern for scientific model configuration?",
+    "back": "**Factory pattern**: create objects without specifying exact class, based on configuration.\n\n```python\ndef create_resource(config: dict):\n    \"\"\"Factory for energy resources.\"\"\"\n    resource_type = config['type']\n    match resource_type:\n        case 'solar':\n            return SolarResource(capacity=config['capacity_mw'],\n                                 cf=config['capacity_factor'])\n        case 'wind':\n            return WindResource(capacity=config['capacity_mw'],\n                                hub_height=config.get('hub_height', 100))\n        case 'battery':\n            return BatteryStorage(energy_mwh=config['energy_mwh'],\n                                  power_mw=config['power_mw'])\n        case _:\n            raise ValueError(f'Unknown resource type: {resource_type}')\n```\n\nMacroEnergy.jl uses this approach: resource types are registered and instantiated from YAML/JSON config files.",
+    "category": "Design Patterns",
+    "track": "shared",
+    "relatedLessons": ["sh-9"]
+  },
+  {
+    "conceptId": "sh-backward-stability",
+    "front": "What is backward stability in numerical algorithms?",
+    "back": "A numerical algorithm is **backward stable** if its output is the exact result for a slightly perturbed input.\n\nFormally: algorithm for `f(x)` returns `f(x + δx)` where `|δx|/|x| ≤ C·ε_machine`.\n\nExample: **Gaussian elimination with partial pivoting** is backward stable for most matrices.\n\n```python\n# Check backward stability:\nimport numpy as np\n\nA = np.random.randn(100, 100)\nb = np.random.randn(100)\n\nx = np.linalg.solve(A, b)  # backward stable\nresidual = np.linalg.norm(A @ x - b) / np.linalg.norm(b)\nprint(f'Relative residual: {residual:.2e}')  # should be ~1e-14\n```\n\nBackward stable ≠ forward stable. A backward stable algorithm on an ill-conditioned problem can still give wrong answers.",
+    "category": "Numerical Methods",
+    "track": "shared",
+    "relatedLessons": ["sh-7"]
   }
 ]
